@@ -1,36 +1,37 @@
 import type {
-	AssessmentBlockDataMap,
-	AssessmentEngine,
 	AssessmentLessonBlock,
+	BlockPayload,
 } from "../types/LessionEngine.type";
 import { BaseBlockEntity } from "./BaseBlockEntity";
 
-export class AssessmentBlockEntity<
-	T extends AssessmentEngine,
-> extends BaseBlockEntity {
+export class AssessmentBlockEntity extends BaseBlockEntity {
 	public readonly type = "assessment";
-	private engine: T;
-	private data: AssessmentBlockDataMap[T];
+	private engine: string;
+	private data: BlockPayload;
 
 	constructor(params: {
 		id?: string;
 		lessonId: string;
 		position: number;
-		engine: T;
-		data: AssessmentBlockDataMap[T];
+		engine: string;
+		data: BlockPayload;
 	}) {
 		super(params);
+
+		if (!params.engine || !params.engine.trim()) {
+			throw new Error("Assessment block requires an engine");
+		}
 
 		this.engine = params.engine;
 		this.data = params.data;
 	}
 
-	update(engine: T, data: AssessmentBlockDataMap[T]) {
+	update(engine: string, data: BlockPayload) {
 		this.engine = engine;
 		this.data = data;
 	}
 
-	toPrimitives(): AssessmentLessonBlock<T> {
+	toPrimitives(): AssessmentLessonBlock {
 		return {
 			id: this.id,
 			lessonId: this.lessonId,
@@ -41,17 +42,15 @@ export class AssessmentBlockEntity<
 		};
 	}
 
-	getEngine(): T {
+	getEngine(): string {
 		return this.engine;
 	}
 
-	getData(): AssessmentBlockDataMap[T] {
+	getData(): BlockPayload {
 		return this.data;
 	}
 
-	static fromPrimitives<T extends AssessmentEngine>(
-		params: AssessmentLessonBlock<T>,
-	): AssessmentBlockEntity<T> {
+	static fromPrimitives(params: AssessmentLessonBlock): AssessmentBlockEntity {
 		return new AssessmentBlockEntity({
 			id: params.id,
 			lessonId: params.lessonId,

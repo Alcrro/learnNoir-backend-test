@@ -1,36 +1,37 @@
 import type {
-	InteractiveBlockDataMap,
-	InteractiveEngine,
+	BlockPayload,
 	InteractiveLessonBlock,
 } from "../types/LessionEngine.type";
 import { BaseBlockEntity } from "./BaseBlockEntity";
 
-export class InteractiveBlockEntity<
-	T extends InteractiveEngine,
-> extends BaseBlockEntity {
+export class InteractiveBlockEntity extends BaseBlockEntity {
 	public readonly type = "interactive";
-	private engine: T;
-	private data: InteractiveBlockDataMap[T];
+	private engine: string;
+	private data: BlockPayload;
 
 	constructor(params: {
 		id?: string;
 		lessonId: string;
 		position: number;
-		engine: T;
-		data: InteractiveBlockDataMap[T];
+		engine: string;
+		data: BlockPayload;
 	}) {
 		super(params);
+
+		if (!params.engine || !params.engine.trim()) {
+			throw new Error("Interactive block requires an engine");
+		}
 
 		this.engine = params.engine;
 		this.data = params.data;
 	}
 
-	update(engine: T, data: InteractiveBlockDataMap[T]) {
+	update(engine: string, data: BlockPayload) {
 		this.engine = engine;
 		this.data = data;
 	}
 
-	toPrimitives(): InteractiveLessonBlock<T> {
+	toPrimitives(): InteractiveLessonBlock {
 		return {
 			id: this.id,
 			lessonId: this.lessonId,
@@ -41,17 +42,15 @@ export class InteractiveBlockEntity<
 		};
 	}
 
-	getEngine(): T {
+	getEngine(): string {
 		return this.engine;
 	}
 
-	getData(): InteractiveBlockDataMap[T] {
+	getData(): BlockPayload {
 		return this.data;
 	}
 
-	static fromPrimitives<T extends InteractiveEngine>(
-		params: InteractiveLessonBlock<T>,
-	): InteractiveBlockEntity<T> {
+	static fromPrimitives(params: InteractiveLessonBlock): InteractiveBlockEntity {
 		return new InteractiveBlockEntity({
 			id: params.id,
 			lessonId: params.lessonId,

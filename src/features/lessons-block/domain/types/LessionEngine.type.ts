@@ -1,36 +1,26 @@
 import type { LessonContentNode } from "../../../lessons-content/domain/types/LessonContent.type";
 
+// Known engine data shapes — for documentation and typed helpers only.
+// Adding a new engine for any subject does NOT require changing this file.
+export type KnownInteractiveEngines = {
+	"algorithm:bubble-sort": { initialArray: number[] };
+	"math:formula": { formula: string };
+};
+
+export type KnownAssessmentEngines = {
+	"quiz:mcq": { question: string; options: string[]; correctIndex: number };
+	"quiz:input": { question: string; correctAnswer: string | number };
+	"quiz:code": { question: string; correctCode: string };
+};
+
+export type InteractiveEngine = string;
+export type AssessmentEngine = string;
+
+export type BlockPayload = Record<string, unknown>;
+
 export type ContentBlockData = {
 	content: LessonContentNode[];
 };
-
-export type InteractiveBlockDataMap = {
-	"algorithm:bubble-sort": {
-		initialArray: number[];
-	};
-	"math:formula": {
-		formula: string;
-	};
-};
-
-export type AssessmentBlockDataMap = {
-	"quiz:mcq": {
-		question: string;
-		options: string[];
-		correctIndex: number;
-	};
-	"quiz:input": {
-		question: string;
-		correctAnswer: string | number;
-	};
-	"quiz:code": {
-		question: string;
-		correctCode: string;
-	};
-};
-
-export type InteractiveEngine = keyof InteractiveBlockDataMap;
-export type AssessmentEngine = keyof AssessmentBlockDataMap;
 
 type PersistedLessonBlockBase = {
 	id: string;
@@ -48,61 +38,41 @@ export type ContentLessonBlock = PersistedLessonBlockBase & {
 	data: ContentBlockData;
 };
 
-export type InteractiveLessonBlock<T extends InteractiveEngine> =
-	PersistedLessonBlockBase & {
-		type: "interactive";
-		engine: T;
-		data: InteractiveBlockDataMap[T];
-	};
+export type InteractiveLessonBlock = PersistedLessonBlockBase & {
+	type: "interactive";
+	engine: string;
+	data: BlockPayload;
+};
 
-export type AssessmentLessonBlock<T extends AssessmentEngine> =
-	PersistedLessonBlockBase & {
-		type: "assessment";
-		engine: T;
-		data: AssessmentBlockDataMap[T];
-	};
-
-export type InteractiveLessonBlockUnion = {
-	[K in InteractiveEngine]: InteractiveLessonBlock<K>;
-}[InteractiveEngine];
-
-export type AssessmentLessonBlockUnion = {
-	[K in AssessmentEngine]: AssessmentLessonBlock<K>;
-}[AssessmentEngine];
+export type AssessmentLessonBlock = PersistedLessonBlockBase & {
+	type: "assessment";
+	engine: string;
+	data: BlockPayload;
+};
 
 export type LessonBlock =
 	| ContentLessonBlock
-	| InteractiveLessonBlockUnion
-	| AssessmentLessonBlockUnion;
+	| InteractiveLessonBlock
+	| AssessmentLessonBlock;
 
 export type CreateContentLessonBlock = CreateLessonBlockBase & {
 	type: "content";
 	data: ContentBlockData;
 };
 
-export type CreateInteractiveLessonBlock<T extends InteractiveEngine> =
-	CreateLessonBlockBase & {
-		type: "interactive";
-		engine: T;
-		data: InteractiveBlockDataMap[T];
-	};
+export type CreateInteractiveLessonBlock = CreateLessonBlockBase & {
+	type: "interactive";
+	engine: string;
+	data: BlockPayload;
+};
 
-export type CreateAssessmentLessonBlock<T extends AssessmentEngine> =
-	CreateLessonBlockBase & {
-		type: "assessment";
-		engine: T;
-		data: AssessmentBlockDataMap[T];
-	};
-
-export type CreateInteractiveLessonBlockUnion = {
-	[K in InteractiveEngine]: CreateInteractiveLessonBlock<K>;
-}[InteractiveEngine];
-
-export type CreateAssessmentLessonBlockUnion = {
-	[K in AssessmentEngine]: CreateAssessmentLessonBlock<K>;
-}[AssessmentEngine];
+export type CreateAssessmentLessonBlock = CreateLessonBlockBase & {
+	type: "assessment";
+	engine: string;
+	data: BlockPayload;
+};
 
 export type CreateLessonBlock =
 	| CreateContentLessonBlock
-	| CreateInteractiveLessonBlockUnion
-	| CreateAssessmentLessonBlockUnion;
+	| CreateInteractiveLessonBlock
+	| CreateAssessmentLessonBlock;

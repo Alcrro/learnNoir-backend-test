@@ -8,28 +8,46 @@ const contentBlockDataSchema = z.object({
 	content: z.array(z.record(z.string(), z.unknown())),
 });
 
-const interactiveBubbleSortDataSchema = z.object({
-	initialArray: z.array(z.number()),
+// Known interactive engine schemas — strict validation for known engines
+const interactiveBubbleSortSchema = z.object({
+	type: z.literal("interactive"),
+	engine: z.literal("algorithm:bubble-sort"),
+	data: z.object({ initialArray: z.array(z.number()) }),
 });
 
-const interactiveFormulaDataSchema = z.object({
-	formula: z.string().min(1),
+const interactiveFormulaSchema = z.object({
+	type: z.literal("interactive"),
+	engine: z.literal("math:formula"),
+	data: z.object({ formula: z.string().min(1) }),
 });
 
-const assessmentMcqDataSchema = z.object({
-	question: z.string().min(1),
-	options: z.array(z.string().min(1)).min(1),
-	correctIndex: z.number().int().nonnegative(),
+// Known assessment engine schemas
+const assessmentMcqSchema = z.object({
+	type: z.literal("assessment"),
+	engine: z.literal("quiz:mcq"),
+	data: z.object({
+		question: z.string().min(1),
+		options: z.array(z.string().min(1)).min(1),
+		correctIndex: z.number().int().nonnegative(),
+	}),
 });
 
-const assessmentInputDataSchema = z.object({
-	question: z.string().min(1),
-	correctAnswer: z.union([z.string().min(1), z.number()]),
+const assessmentInputSchema = z.object({
+	type: z.literal("assessment"),
+	engine: z.literal("quiz:input"),
+	data: z.object({
+		question: z.string().min(1),
+		correctAnswer: z.union([z.string().min(1), z.number()]),
+	}),
 });
 
-const assessmentCodeDataSchema = z.object({
-	question: z.string().min(1),
-	correctCode: z.string().min(1),
+const assessmentCodeSchema = z.object({
+	type: z.literal("assessment"),
+	engine: z.literal("quiz:code"),
+	data: z.object({
+		question: z.string().min(1),
+		correctCode: z.string().min(1),
+	}),
 });
 
 const baseCreateLessonBlockSchema = z.object({
@@ -42,38 +60,34 @@ const createContentLessonBlockSchema = baseCreateLessonBlockSchema.extend({
 	data: contentBlockDataSchema,
 });
 
-const createInteractiveLessonBlockSchema = z.discriminatedUnion("engine", [
-	baseCreateLessonBlockSchema.extend({
-		type: z.literal("interactive"),
-		engine: z.literal("algorithm:bubble-sort"),
-		data: interactiveBubbleSortDataSchema,
-	}),
-	baseCreateLessonBlockSchema.extend({
-		type: z.literal("interactive"),
-		engine: z.literal("math:formula"),
-		data: interactiveFormulaDataSchema,
-	}),
+// Unknown engine fallback — any engine with flexible data passes through
+const interactiveUnknownSchema = baseCreateLessonBlockSchema.extend({
+	type: z.literal("interactive"),
+	engine: z.string().min(1),
+	data: z.record(z.string(), z.unknown()),
+});
+
+const assessmentUnknownSchema = baseCreateLessonBlockSchema.extend({
+	type: z.literal("assessment"),
+	engine: z.string().min(1),
+	data: z.record(z.string(), z.unknown()),
+});
+
+// Known engines are validated strictly; unknown engines fall through to the generic schema
+const createInteractiveLessonBlockSchema = z.union([
+	baseCreateLessonBlockSchema.merge(interactiveBubbleSortSchema),
+	baseCreateLessonBlockSchema.merge(interactiveFormulaSchema),
+	interactiveUnknownSchema,
 ]);
 
-const createAssessmentLessonBlockSchema = z.discriminatedUnion("engine", [
-	baseCreateLessonBlockSchema.extend({
-		type: z.literal("assessment"),
-		engine: z.literal("quiz:mcq"),
-		data: assessmentMcqDataSchema,
-	}),
-	baseCreateLessonBlockSchema.extend({
-		type: z.literal("assessment"),
-		engine: z.literal("quiz:input"),
-		data: assessmentInputDataSchema,
-	}),
-	baseCreateLessonBlockSchema.extend({
-		type: z.literal("assessment"),
-		engine: z.literal("quiz:code"),
-		data: assessmentCodeDataSchema,
-	}),
+const createAssessmentLessonBlockSchema = z.union([
+	baseCreateLessonBlockSchema.merge(assessmentMcqSchema),
+	baseCreateLessonBlockSchema.merge(assessmentInputSchema),
+	baseCreateLessonBlockSchema.merge(assessmentCodeSchema),
+	assessmentUnknownSchema,
 ]);
 
-const createLessonBlockSchemaInternal = z.discriminatedUnion("type", [
+const createLessonBlockSchemaInternal = z.union([
 	createContentLessonBlockSchema,
 	createInteractiveLessonBlockSchema,
 	createAssessmentLessonBlockSchema,

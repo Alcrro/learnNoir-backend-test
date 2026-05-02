@@ -12,29 +12,21 @@ export const LESSON_BLOCK_TYPES = [
 	"assessment",
 ] as const;
 
-export const INTERACTIVE_ENGINES = [
+// Known engines — for reference only, not used as exhaustive guards.
+// New engines for any subject can be added without touching this list.
+export const KNOWN_INTERACTIVE_ENGINES = [
 	"algorithm:bubble-sort",
 	"math:formula",
 ] as const;
 
-export const ASSESSMENT_ENGINES = [
+export const KNOWN_ASSESSMENT_ENGINES = [
 	"quiz:mcq",
 	"quiz:input",
 	"quiz:code",
 ] as const;
 
 export type LessonBlockType = (typeof LESSON_BLOCK_TYPES)[number];
-export type InteractiveEngine = (typeof INTERACTIVE_ENGINES)[number];
-export type AssessmentEngine = (typeof ASSESSMENT_ENGINES)[number];
 
 export function isLessonBlockType(value: string): value is LessonBlockType {
 	return LESSON_BLOCK_TYPES.includes(value as LessonBlockType);
-}
-
-export function isInteractiveEngine(value: string): value is InteractiveEngine {
-	return INTERACTIVE_ENGINES.includes(value as InteractiveEngine);
-}
-
-export function isAssessmentEngine(value: string): value is AssessmentEngine {
-	return ASSESSMENT_ENGINES.includes(value as AssessmentEngine);
 }

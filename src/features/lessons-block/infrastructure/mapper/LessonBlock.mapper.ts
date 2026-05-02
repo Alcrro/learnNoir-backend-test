@@ -3,14 +3,8 @@ import { AssessmentBlockEntity } from "../../domain/entities/AssessmentBlockEnti
 import { ContentBlockEntity } from "../../domain/entities/ContentBlockEntity";
 import { InteractiveBlockEntity } from "../../domain/entities/InteractiveBlockEntity";
 import type { LessonBlockEntity } from "../../domain/entities/LessonBlockEntity";
-import type {
-	AssessmentBlockDataMap,
-	ContentBlockData,
-	InteractiveBlockDataMap,
-} from "../../domain/types/LessionEngine.type";
+import type { ContentBlockData } from "../../domain/types/LessionEngine.type";
 import {
-	isAssessmentEngine,
-	isInteractiveEngine,
 	isLessonBlockType,
 	type LessonBlockInsert,
 	type LessonBlockJson,
@@ -39,64 +33,26 @@ export class LessonBlockMapper {
 				});
 
 			case "interactive":
-				if (!row.engine || !isInteractiveEngine(row.engine)) {
+				if (!row.engine) {
 					throw new DatabaseError("Interactive lesson block is missing engine");
 				}
-
-				switch (row.engine) {
-					case "algorithm:bubble-sort":
-						return InteractiveBlockEntity.fromPrimitives({
-							...baseBlock,
-							type: "interactive",
-							engine: "algorithm:bubble-sort",
-							data: row.data as InteractiveBlockDataMap["algorithm:bubble-sort"],
-						});
-
-					case "math:formula":
-						return InteractiveBlockEntity.fromPrimitives({
-							...baseBlock,
-							type: "interactive",
-							engine: "math:formula",
-							data: row.data as InteractiveBlockDataMap["math:formula"],
-						});
-
-					default:
-						throw new DatabaseError(`Unsupported interactive engine: ${row.engine}`);
-				}
+				return InteractiveBlockEntity.fromPrimitives({
+					...baseBlock,
+					type: "interactive",
+					engine: row.engine,
+					data: row.data as Record<string, unknown>,
+				});
 
 			case "assessment":
-				if (!row.engine || !isAssessmentEngine(row.engine)) {
+				if (!row.engine) {
 					throw new DatabaseError("Assessment lesson block is missing engine");
 				}
-
-				switch (row.engine) {
-					case "quiz:mcq":
-						return AssessmentBlockEntity.fromPrimitives({
-							...baseBlock,
-							type: "assessment",
-							engine: "quiz:mcq",
-							data: row.data as AssessmentBlockDataMap["quiz:mcq"],
-						});
-
-					case "quiz:input":
-						return AssessmentBlockEntity.fromPrimitives({
-							...baseBlock,
-							type: "assessment",
-							engine: "quiz:input",
-							data: row.data as AssessmentBlockDataMap["quiz:input"],
-						});
-
-					case "quiz:code":
-						return AssessmentBlockEntity.fromPrimitives({
-							...baseBlock,
-							type: "assessment",
-							engine: "quiz:code",
-							data: row.data as AssessmentBlockDataMap["quiz:code"],
-						});
-
-					default:
-						throw new DatabaseError(`Unsupported assessment engine: ${row.engine}`);
-				}
+				return AssessmentBlockEntity.fromPrimitives({
+					...baseBlock,
+					type: "assessment",
+					engine: row.engine,
+					data: row.data as Record<string, unknown>,
+				});
 
 			default:
 				throw new DatabaseError(`Unsupported lesson block type: ${row.type}`);

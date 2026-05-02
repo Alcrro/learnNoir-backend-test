@@ -5,7 +5,8 @@ export type LessonContentNode =
 	| ComplexityBlock
 	| FormulaBlock
 	| ProofBlock
-	| TheoremBlock;
+	| TheoremBlock
+	| { type: string; [key: string]: unknown }; // extensible: allows custom content types for any subject
 
 type FormulaBlock = {
 	type: "formula";
