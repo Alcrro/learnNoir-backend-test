@@ -1,0 +1,229 @@
+{
+  "lesson": {
+    "moduleId": "__MODULE_ID__",
+    "title": "Introducere in Bubble Sort",
+    "slug": "introducere-in-bubble-sort",
+    "description": "Prima lectie despre Bubble Sort: idee, pasi, exemplu si complexitate.",
+    "teaches": "algorithm:bubble-sort",
+    "prerequisites": [
+      "arrays:basics",
+      "comparison:operators"
+    ],
+    "position": 0,
+    "isActive": true,
+    "meta": {
+      "tags": [
+        "sorting",
+        "arrays",
+        "bubble-sort"
+      ],
+      "difficulty": "beginner"
+    }
+  },
+  "lessonBlocks": [
+    {
+      "type": "content",
+      "lessonId": "__LESSON_ID__",
+      "position": 0,
+      "data": {
+        "content": [
+          {
+            "type": "concept",
+            "title": "Ideea de baza",
+            "sections": [
+              {
+                "label": "CE FACE",
+                "text": "Bubble Sort compara elemente vecine si le interschimba atunci cand sunt in ordinea gresita."
+              },
+              {
+                "label": "DE CE SE NUMESTE ASA",
+                "text": "Valorile mai mari se deplaseaza treptat spre finalul vectorului, ca niste bule care urca la suprafata."
+              }
+            ]
+          },
+          {
+            "type": "steps",
+            "steps": [
+              {
+                "title": "Parcurgi vectorul de la stanga la dreapta",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "text": "Compari fiecare pereche de elemente vecine."
+                  },
+                  {
+                    "type": "inlineCode",
+                    "code": "arr[i] si arr[i + 1]"
+                  }
+                ]
+              },
+              {
+                "title": "Faci swap cand ordinea este gresita",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "text": "Daca elementul curent este mai mare decat urmatorul, le schimbi intre ele."
+                  },
+                  {
+                    "type": "inlineCode",
+                    "code": "if (arr[i] > arr[i + 1]) swap"
+                  }
+                ]
+              },
+              {
+                "title": "La finalul unei treceri, cel mai mare element ajunge la final",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "text": "Fiecare trecere fixeaza cel putin un element pe pozitia lui finala."
+                  }
+                ],
+                "example": {
+                  "type": "example",
+                  "initial": [
+                    5,
+                    1,
+                    4,
+                    2
+                  ],
+                  "states": [
+                    {
+                      "array": [
+                        5,
+                        1,
+                        4,
+                        2
+                      ],
+                      "action": "Comparam 5 si 1",
+                      "highlights": {
+                        "compare": [
+                          0,
+                          1
+                        ]
+                      }
+                    },
+                    {
+                      "array": [
+                        1,
+                        5,
+                        4,
+                        2
+                      ],
+                      "action": "5 > 1, facem swap",
+                      "highlights": {
+                        "swap": [
+                          0,
+                          1
+                        ]
+                      }
+                    },
+                    {
+                      "array": [
+                        1,
+                        4,
+                        5,
+                        2
+                      ],
+                      "action": "5 > 4, dupa comparari 5 continua spre dreapta",
+                      "highlights": {
+                        "swap": [
+                          1,
+                          2
+                        ]
+                      }
+                    },
+                    {
+                      "array": [
+                        1,
+                        4,
+                        2,
+                        5
+                      ],
+                      "action": "5 ajunge pe ultima pozitie dupa prima trecere",
+                      "highlights": {
+                        "sorted": [
+                          3
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "title": "Te opresti mai devreme daca nu mai exista swap-uri",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "text": "Daca o trecere completa nu modifica vectorul, inseamna ca este deja sortat."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "complexity",
+            "cases": [
+              {
+                "type": "best",
+                "time": "O(n)",
+                "description": "Cand vectorul este deja sortat si folosesti optimizarea cu stop timpuriu."
+              },
+              {
+                "type": "average",
+                "time": "O(n^2)",
+                "description": "Pentru date obisnuite, numarul de comparari si swap-uri ramane patratic."
+              },
+              {
+                "type": "worst",
+                "time": "O(n^2)",
+                "description": "Cand vectorul este sortat invers, sunt necesare multe treceri si multe swap-uri."
+              }
+            ],
+            "space": "O(1)"
+          }
+        ]
+      }
+    },
+    {
+      "type": "interactive",
+      "lessonId": "__LESSON_ID__",
+      "position": 1,
+      "engine": "algorithm:bubble-sort",
+      "data": {
+        "initialArray": [
+          5,
+          1,
+          4,
+          2,
+          8
+        ]
+      }
+    },
+    {
+      "type": "assessment",
+      "lessonId": "__LESSON_ID__",
+      "position": 2,
+      "engine": "quiz:mcq",
+      "data": {
+        "question": "Ce este garantat dupa prima trecere completa a algoritmului Bubble Sort?",
+        "options": [
+          "Vectorul este complet sortat",
+          "Cel mai mic element ajunge pe prima pozitie",
+          "Cel mai mare element ajunge pe ultima pozitie",
+          "Nu mai exista comparari de facut"
+        ],
+        "correctIndex": 2
+      }
+    },
+    {
+      "type": "assessment",
+      "lessonId": "__LESSON_ID__",
+      "position": 3,
+      "engine": "quiz:input",
+      "data": {
+        "question": "Care este complexitatea de spatiu pentru Bubble Sort?",
+        "correctAnswer": "O(1)"
+      }
+    }
+  ]
+}
