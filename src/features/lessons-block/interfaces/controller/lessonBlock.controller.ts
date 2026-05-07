@@ -4,11 +4,13 @@ import { parseCreateLessonBlockDTO } from "../../application/dto/LessonBlock.dto
 import type { CreateLessonBlockUseCase } from "../../application/useCases/createLessonBlockUseCase.usecase";
 import { GetLessonBlockUsecase } from "../../application/useCases/getLessonBlockUsecase.usecase";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware";
+import type { GetBlocksByLessonIdUseCase } from "../../application/useCases/getBlocksByLessonIdUseCase";
 
 export class LessonBlockController {
 	constructor(
 		private readonly lessonBlockServices: {
 			getLessonBlockById: GetLessonBlockUsecase;
+			getBlocksByLessonId: GetBlocksByLessonIdUseCase;
 			createLessonBlock: CreateLessonBlockUseCase;
 		},
 	) {}
@@ -23,7 +25,22 @@ export class LessonBlockController {
 			return res.status(200).json({
 				success: true,
 				message: `Lesson block ${id} successfully found`,
-				data: lessonBlock,
+				lessonBlock,
+			});
+		},
+	);
+
+	// Returns all blocks for a lesson in ascending position order.
+	findByLessonId = asyncHandlerMiddleware(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const lessonId = readRequiredString(req.params.lessonId, "Lesson id is required");
+
+			const blocks =
+				await this.lessonBlockServices.getBlocksByLessonId.execute(lessonId);
+
+			return res.status(200).json({
+				success: true,
+				data: blocks,
 			});
 		},
 	);
@@ -46,7 +63,7 @@ export class LessonBlockController {
 			return res.status(201).json({
 				success: true,
 				message: `Lesson block ${createdLessonBlock.id} successfully created`,
-				data: createdLessonBlock,
+				createdLessonBlock,
 			});
 		},
 	);

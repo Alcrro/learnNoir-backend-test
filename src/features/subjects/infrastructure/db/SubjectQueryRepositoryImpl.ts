@@ -4,12 +4,12 @@ import type { SubjectCardDTO } from "../../application/dto/subjectCardDto";
 import type {
 	GetSubjectCardsParams,
 	SubjectQueryRepository,
-} from "../../application/repositories/repositories.interfaces";
+} from "../../application/repositories/subjects.interfaces";
 import type { Database } from "../../../../database.types";
 import { SubjectQueryMapper } from "../mapper/SubjectQueryMapper.mapper";
 import { DatabaseError } from "../../../../utils/errors/DatabaseError";
 
-type SubjectRow = Pick<Tables<"subjects">, "id" | "name">;
+type SubjectRow = Pick<Tables<"subjects">, "id" | "name" | "slug" | "description">;
 type CategoryRow = Pick<Tables<"categories">, "id" | "subject_id">;
 type ModuleRow = Pick<Tables<"modules">, "id" | "category_id">;
 type LessonRow = Pick<Tables<"lessons">, "module_id" | "duration_seconds">;
@@ -22,7 +22,7 @@ export class SubjectQueryRepositoryImpl implements SubjectQueryRepository {
 	): Promise<SubjectCardDTO[]> {
 		const { data: subjects, error: subjectsError } = await this.db
 			.from("subjects")
-			.select("id, name")
+			.select("id, name, slug, description")
 			.order("order", { ascending: true })
 			.limit(params.limit ?? 30);
 
@@ -88,7 +88,9 @@ export class SubjectQueryRepositoryImpl implements SubjectQueryRepository {
 		return (subjects as SubjectRow[]).map((subject) =>
 			SubjectQueryMapper.toDomain({
 				id: subject.id,
+				slug: subject.slug,
 				title: subject.name,
+				description: subject.description ?? "",
 				modulesCount: modulesCountBySubjectId.get(subject.id) ?? 0,
 				lessonsCount: lessonsCountBySubjectId.get(subject.id) ?? 0,
 				totalHours: Number(
@@ -98,7 +100,9 @@ export class SubjectQueryRepositoryImpl implements SubjectQueryRepository {
 		);
 	}
 
-	private async getModulesByCategoryIds(categoryIds: string[]): Promise<ModuleRow[]> {
+	private async getModulesByCategoryIds(
+		categoryIds: string[],
+	): Promise<ModuleRow[]> {
 		const { data, error } = await this.db
 			.from("modules")
 			.select("id, category_id")
@@ -109,7 +113,9 @@ export class SubjectQueryRepositoryImpl implements SubjectQueryRepository {
 		return (data ?? []) as ModuleRow[];
 	}
 
-	private async getLessonsByModuleIds(moduleIds: string[]): Promise<LessonRow[]> {
+	private async getLessonsByModuleIds(
+		moduleIds: string[],
+	): Promise<LessonRow[]> {
 		const { data, error } = await this.db
 			.from("lessons")
 			.select("module_id, duration_seconds")

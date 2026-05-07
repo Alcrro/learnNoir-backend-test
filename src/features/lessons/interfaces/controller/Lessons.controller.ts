@@ -10,6 +10,10 @@ import type { PublishLessonUseCase } from "../../application/useCases/publishLes
 import type { ReviewLessonUseCase } from "../../application/useCases/reviewLesson.usecase";
 import type { UpdateLessonUseCase } from "../../application/useCases/updateLesson.usecase";
 import type { CreateLessonUseCase } from "../../application/useCases/createLesson.usecase";
+import type { ListTeacherLessonsUseCase } from "../../application/useCases/listTeacherLessons.usecase";
+import type { GetTeacherStatsUseCase } from "../../application/useCases/getTeacherStats.usecase";
+import type { GetTeacherStudentsUseCase } from "../../application/useCases/getTeacherStudents.usecase";
+import type { GetLessonBySlugUseCase } from "../../application/useCases/getLessonBySlug.usecase";
 
 export class LessonController {
 	constructor(
@@ -18,11 +22,15 @@ export class LessonController {
 			listLessonsByModuleIdUseCase: ListLessonsByModuleIdUseCase;
 			listLessonsByModuleSlugUseCase: ListLessonsByModuleSlugUseCase;
 			getLessonUseCase: GetLesson;
+			getLessonBySlugUseCase: GetLessonBySlugUseCase;
 			createLessonUseCase: CreateLessonUseCase;
 			updateLessonUseCase: UpdateLessonUseCase;
 			deleteLessonUseCase: DeleteLessonUseCase;
 			reviewLessonUseCase: ReviewLessonUseCase;
 			publishLessonUseCase: PublishLessonUseCase;
+			listTeacherLessonsUseCase: ListTeacherLessonsUseCase;
+			getTeacherStatsUseCase: GetTeacherStatsUseCase;
+			getTeacherStudentsUseCase: GetTeacherStudentsUseCase;
 		},
 	) {}
 
@@ -87,6 +95,22 @@ export class LessonController {
 		}
 
 		const lesson = await this.lessonService.getLessonUseCase.execute(id);
+		if (!lesson) {
+			return res.status(404).json({ error: "Lesson not found" });
+		}
+
+		return res.status(200).json({ data: lesson });
+	});
+
+	// Resolves a lesson by its URL slug instead of its internal UUID.
+	getLessonBySlug = asyncHandlerMiddleware(async (req: Request, res: Response) => {
+		const slug = asString(req.params.slug);
+
+		if (!slug) {
+			return res.status(400).json({ error: "Lesson slug is required" });
+		}
+
+		const lesson = await this.lessonService.getLessonBySlugUseCase.execute(slug);
 		if (!lesson) {
 			return res.status(404).json({ error: "Lesson not found" });
 		}
@@ -175,6 +199,36 @@ export class LessonController {
 
 		return res.status(200).json({ message: "Lesson published" });
 	});
+
+	listTeacherLessons = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const teacherId = req.userId;
+			if (!teacherId) return res.status(401).json({ error: "Unauthorized" });
+
+			const lessons = await this.lessonService.listTeacherLessonsUseCase.execute(teacherId);
+			return res.status(200).json({ data: lessons });
+		},
+	);
+
+	getTeacherStats = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const teacherId = req.userId;
+			if (!teacherId) return res.status(401).json({ error: "Unauthorized" });
+
+			const stats = await this.lessonService.getTeacherStatsUseCase.execute(teacherId);
+			return res.status(200).json({ data: stats });
+		},
+	);
+
+	getTeacherStudents = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const teacherId = req.userId;
+			if (!teacherId) return res.status(401).json({ error: "Unauthorized" });
+
+			const students = await this.lessonService.getTeacherStudentsUseCase.execute(teacherId);
+			return res.status(200).json({ data: students });
+		},
+	);
 }
 
 function asString(value: unknown) {

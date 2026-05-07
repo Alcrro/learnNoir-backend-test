@@ -2,8 +2,12 @@
 	// Visit https://aka.ms/tsconfig to read more about this file
 	"compilerOptions": {
 		// File Layout
-		"rootDir": "./src",
+		"rootDir": "..",
 		"outDir": "./dist",
+		"baseUrl": ".",
+		"paths": {
+			"@shared/*": ["../shared/src/*"]
+		},
 
 		"esModuleInterop": true,
 		// Environment Settings
@@ -47,5 +51,6 @@
 
 		"typeRoots": ["./src/types"]
 	},
+	"include": ["src"],
 	"exclude": ["test"]
 }

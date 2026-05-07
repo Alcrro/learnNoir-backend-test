@@ -5,9 +5,11 @@ import { useLessonBlockControllerFactory } from "../../infrastructure/factories/
 
 const route = Router();
 
-const { findOne, createLessonBlock } = useLessonBlockControllerFactory();
+const { findOne, findByLessonId, createLessonBlock } = useLessonBlockControllerFactory();
 
+// Must be before /:id to avoid the route param swallowing "lesson"
+route.get("/lesson/:lessonId", findByLessonId);
 route.get("/:id", findOne);
-route.post("/", createLessonBlock);
+route.post("/", validateInput(CreateLessonBlockSchema), createLessonBlock);
 
 export default route;

@@ -10,16 +10,43 @@ const {
 	listLessonsByModuleId,
 	listLessonsByModuleSlug,
 	getLesson,
+	getLessonBySlug,
 	createLesson,
 	updateLesson,
 	deleteLesson,
 	reviewLesson,
 	publishLesson,
+	listTeacherLessons,
+	getTeacherStats,
+	getTeacherStudents,
 } = lessonControllerFactory();
 
 router.get("", listLessons);
 router.get("/module/id/:moduleId", listLessonsByModuleId);
 router.get("/module/slug/:slug", listLessonsByModuleSlug);
+// Must be before /:id to avoid route conflict — resolves lesson by URL slug
+router.get("/slug/:slug", getLessonBySlug);
+
+// Teacher-only dashboard endpoints — before /:id to avoid route conflict
+router.get(
+	"/mine",
+	requireAuthMiddleware,
+	roleRequiredMiddleware(["teacher", "admin"]),
+	listTeacherLessons,
+);
+router.get(
+	"/mine/stats",
+	requireAuthMiddleware,
+	roleRequiredMiddleware(["teacher", "admin"]),
+	getTeacherStats,
+);
+router.get(
+	"/mine/students",
+	requireAuthMiddleware,
+	roleRequiredMiddleware(["teacher", "admin"]),
+	getTeacherStudents,
+);
+
 router.get("/:id", getLesson);
 router.post(
 	"",

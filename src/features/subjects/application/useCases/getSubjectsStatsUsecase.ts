@@ -1,6 +1,6 @@
 import type { GetSubjectsWithStatsInput } from "../dto/getSubjectsWithStats.usecase";
 import type { SubjectCardDTO } from "../dto/subjectCardDto";
-import type { SubjectQueryRepository } from "../repositories/repositories.interfaces";
+import type { SubjectQueryRepository } from "../repositories/subjects.interfaces";
 
 export class getSubjectQueryStatsUsecase {
 	constructor(private readonly subjectQueryRepository: SubjectQueryRepository) {}

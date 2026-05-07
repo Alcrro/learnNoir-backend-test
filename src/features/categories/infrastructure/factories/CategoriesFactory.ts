@@ -3,6 +3,7 @@ import { createCategoriesUseCase } from "../../application/useCases/createCatego
 import { supabase } from "../../../../core/db/supabaseClient";
 import { CategoriesController } from "../../interfaces/controller/CategoriesController";
 import { getAllCategoriesQueryUsecase } from "../../application/useCases/getAllCategoriesUsecase";
+import { GetCategoriesWithModulesUseCase } from "../../application/useCases/getCategoriesWithModulesUseCase";
 import { CategoriesQueryRepoImpl } from "../db/CategoriesQueryRepoImpl";
 
 export function CategoriesFactory(): CategoriesController {
@@ -10,9 +11,8 @@ export function CategoriesFactory(): CategoriesController {
 	const categoriesQueryRepoImpl = new CategoriesQueryRepoImpl(supabase);
 	const categoriesServices = {
 		createCategoriesUseCase: new createCategoriesUseCase(categoriesRepoImpl),
-		getAllCategoriesQuery: new getAllCategoriesQueryUsecase(
-			categoriesQueryRepoImpl,
-		),
+		getAllCategoriesQuery: new getAllCategoriesQueryUsecase(categoriesQueryRepoImpl),
+		getCategoriesWithModules: new GetCategoriesWithModulesUseCase(categoriesQueryRepoImpl),
 	};
 	return new CategoriesController(categoriesServices);
 }

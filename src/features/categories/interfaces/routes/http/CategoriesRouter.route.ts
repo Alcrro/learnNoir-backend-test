@@ -5,8 +5,9 @@ import { CreateCategorySchema } from "../../../application/dto/CategoryDTO";
 
 const router = Router();
 
-const { create, getAllCategoriesQuery } = CategoriesFactory();
+const { create, getAllCategoriesQuery, getCategoriesWithModules } = CategoriesFactory();
 router.post("/", validateInput(CreateCategorySchema), create);
 router.get("/stats", getAllCategoriesQuery);
+router.get("/by-subject/:slug", getCategoriesWithModules);
 
 export default router;
