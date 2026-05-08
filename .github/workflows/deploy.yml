@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: eu-central-1
   ECR_REPOSITORY: learnnoir-backend
-  ECS_CLUSTER: learnnoir-cluster
+  ECS_CLUSTER: learnnor
   ECS_SERVICE: learnnoir-backend-service
   CONTAINER_NAME: learnnoir-backend
   TASK_DEFINITION: learnnoir-backend
