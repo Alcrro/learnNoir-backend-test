@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+import { env } from "../../../../config/env";
 import { RegisterUserUseCase } from "../../application/useCases/registerUser.usecase";
 import { AuthWithCredetials } from "../../application/useCases/authWithCredentials.usecase";
 import type { role } from "../../../profiles/application/dto/ProfileDTO.type";
@@ -39,16 +40,17 @@ export class AuthController {
 			password,
 		);
 
+		const { isProd } = env;
 		res.cookie("accessToken", loginUser.accessToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: isProd,
+			sameSite: isProd ? "none" : "strict",
 		});
 
 		res.cookie("refreshToken", loginUser.refreshToken, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === "production",
-			sameSite: "strict",
+			secure: isProd,
+			sameSite: isProd ? "none" : "strict",
 		});
 
 		return res.status(201).json({ success: true, data: loginUser });

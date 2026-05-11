@@ -14,6 +14,7 @@ import type { ListTeacherLessonsUseCase } from "../../application/useCases/listT
 import type { GetTeacherStatsUseCase } from "../../application/useCases/getTeacherStats.usecase";
 import type { GetTeacherStudentsUseCase } from "../../application/useCases/getTeacherStudents.usecase";
 import type { GetLessonBySlugUseCase } from "../../application/useCases/getLessonBySlug.usecase";
+import type { GetLessonHistoryUseCase } from "../../application/useCases/getLessonHistory.usecase";
 
 export class LessonController {
 	constructor(
@@ -31,6 +32,7 @@ export class LessonController {
 			listTeacherLessonsUseCase: ListTeacherLessonsUseCase;
 			getTeacherStatsUseCase: GetTeacherStatsUseCase;
 			getTeacherStudentsUseCase: GetTeacherStudentsUseCase;
+			getLessonHistoryUseCase: GetLessonHistoryUseCase;
 		},
 	) {}
 
@@ -146,9 +148,15 @@ export class LessonController {
 		async (req: RequestWithUserId, res: Response) => {
 			const id = asString(req.params.id);
 			const lessonPatch = req.body;
+			const requesterId = req.userId;
+			const requesterRole = req.userRole;
 
 			if (!id) {
 				return res.status(400).json({ error: "Lesson ID is required" });
+			}
+
+			if (!requesterId || !requesterRole) {
+				return res.status(401).json({ error: "Unauthorized" });
 			}
 
 			if (!lessonPatch || Object.keys(lessonPatch).length === 0) {
@@ -158,44 +166,64 @@ export class LessonController {
 			const lessonDTO = await this.lessonService.updateLessonUseCase.execute(
 				id,
 				lessonPatch,
+				requesterId,
+				requesterRole,
 			);
 
 			return res.status(200).json({ data: lessonDTO });
 		},
 	);
 
-	deleteLesson = asyncHandlerMiddleware(async (req: Request, res: Response) => {
+	deleteLesson = asyncHandlerMiddleware(async (req: RequestWithUserId, res: Response) => {
 		const id = asString(req.params.id);
+		const requesterId = req.userId;
+		const requesterRole = req.userRole;
 
 		if (!id) {
 			return res.status(400).json({ error: "Lesson ID is required" });
 		}
 
-		await this.lessonService.deleteLessonUseCase.execute(id);
+		if (!requesterId || !requesterRole) {
+			return res.status(401).json({ error: "Unauthorized" });
+		}
+
+		await this.lessonService.deleteLessonUseCase.execute(id, requesterId, requesterRole);
 
 		return res.status(204).send();
 	});
 
-	reviewLesson = asyncHandlerMiddleware(async (req: Request, res: Response) => {
+	reviewLesson = asyncHandlerMiddleware(async (req: RequestWithUserId, res: Response) => {
 		const id = asString(req.params.id);
+		const requesterId = req.userId;
+		const requesterRole = req.userRole;
 
 		if (!id) {
 			return res.status(400).json({ error: "Lesson ID is required" });
 		}
 
-		await this.lessonService.reviewLessonUseCase.execute(id);
+		if (!requesterId || !requesterRole) {
+			return res.status(401).json({ error: "Unauthorized" });
+		}
+
+		await this.lessonService.reviewLessonUseCase.execute(id, requesterId, requesterRole);
 
 		return res.status(200).json({ message: "Lesson reviewed" });
 	});
 
-	publishLesson = asyncHandlerMiddleware(async (req: Request, res: Response) => {
+	publishLesson = asyncHandlerMiddleware(async (req: RequestWithUserId, res: Response) => {
 		const id = asString(req.params.id);
+		const requesterId = req.userId;
+		const requesterRole = req.userRole;
 
 		if (!id) {
 			return res.status(400).json({ error: "Lesson ID is required" });
 		}
 
-		await this.lessonService.publishLessonUseCase.execute(id);
+		if (!requesterId || !requesterRole) {
+			return res.status(401).json({ error: "Unauthorized" });
+		}
+
+		await this.lessonService.publishLessonUseCase.execute(id, requesterId, requesterRole);
 
 		return res.status(200).json({ message: "Lesson published" });
 	});
@@ -229,6 +257,14 @@ export class LessonController {
 			return res.status(200).json({ data: students });
 		},
 	);
+
+	getLessonHistory = asyncHandlerMiddleware(async (req: Request, res: Response) => {
+		const id = asString(req.params.id);
+		if (!id) return res.status(400).json({ error: "Lesson ID is required" });
+
+		const history = await this.lessonService.getLessonHistoryUseCase.execute(id);
+		return res.status(200).json({ data: history });
+	});
 }
 
 function asString(value: unknown) {

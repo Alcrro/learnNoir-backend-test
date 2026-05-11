@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LessonEntity } from "../../domain/entities/Lesson";
-import type { ILessonRepository } from "../../domain/repositories/LeasonRepository";
+import type { ILessonRepository, LessonEditChange, LessonEditEntry } from "../../domain/repositories/LeasonRepository";
 import { LessonMapper } from "../mapper/lesson.mapper";
 import {
 	DatabaseError,
@@ -461,5 +461,45 @@ export class LessonRepositoryImpl implements ILessonRepository {
 		}
 
 		return authorsByLessonId;
+	}
+
+	async logEdit(lessonId: string, editorId: string, changes: LessonEditChange[]): Promise<void> {
+		const { error } = await this.db.from("lesson_edit_history").insert({
+			lesson_id: lessonId,
+			editor_id: editorId,
+			changes: JSON.parse(JSON.stringify(changes)) as import("../../../../database.types").Json,
+		});
+		if (error) throw new DatabaseError(error.message);
+	}
+
+	async getHistory(lessonId: string): Promise<LessonEditEntry[]> {
+		const { data, error } = await this.db
+			.from("lesson_edit_history")
+			.select("id, lesson_id, editor_id, changed_at, changes")
+			.eq("lesson_id", lessonId)
+			.order("changed_at", { ascending: false })
+			.limit(50);
+
+		if (error) throw new DatabaseError(error.message);
+		if (!data || data.length === 0) return [];
+
+		const editorIds = [...new Set(data.map((r) => r.editor_id))];
+		const { data: profiles } = await this.db
+			.from("profiles")
+			.select("id, username")
+			.in("id", editorIds);
+
+		const nameMap = new Map(
+			(profiles ?? []).map((p) => [p.id, p.username ?? "Unknown"]),
+		);
+
+		return data.map((row) => ({
+			id: row.id,
+			lessonId: row.lesson_id,
+			editorId: row.editor_id,
+			editorName: nameMap.get(row.editor_id) ?? "Unknown",
+			changedAt: row.changed_at,
+			changes: row.changes as unknown as LessonEditChange[],
+		}));
 	}
 }

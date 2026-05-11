@@ -5,6 +5,17 @@ import type {
 	TeacherStudentDTO,
 } from "../../application/dto/TeacherLessons.dto";
 
+export type LessonEditChange = { field: string; from: string; to: string };
+
+export type LessonEditEntry = {
+	id: string;
+	lessonId: string;
+	editorId: string;
+	editorName: string;
+	changedAt: string;
+	changes: LessonEditChange[];
+};
+
 export interface ILessonRepository {
 	get(id: string): Promise<LessonEntity>;
 	getBySlug(slug: string): Promise<LessonEntity | null>;
@@ -21,4 +32,7 @@ export interface ILessonRepository {
 	listByTeacher(teacherId: string): Promise<TeacherLessonDTO[]>;
 	getTeacherStats(teacherId: string): Promise<TeacherStatsDTO>;
 	getTeacherStudents(teacherId: string): Promise<TeacherStudentDTO[]>;
+
+	logEdit(lessonId: string, editorId: string, changes: LessonEditChange[]): Promise<void>;
+	getHistory(lessonId: string): Promise<LessonEditEntry[]>;
 }

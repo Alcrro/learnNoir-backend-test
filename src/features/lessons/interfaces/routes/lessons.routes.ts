@@ -19,6 +19,7 @@ const {
 	listTeacherLessons,
 	getTeacherStats,
 	getTeacherStudents,
+	getLessonHistory,
 } = lessonControllerFactory();
 
 router.get("", listLessons);
@@ -54,9 +55,10 @@ router.post(
 	roleRequiredMiddleware(["admin", "teacher"]),
 	createLesson,
 );
-router.put("/:id", requireAuthMiddleware, updateLesson);
-router.delete("/:id", requireAuthMiddleware, deleteLesson);
-router.patch("/:id/review", requireAuthMiddleware, reviewLesson);
-router.patch("/:id/publish", requireAuthMiddleware, publishLesson);
+router.get("/:id/history", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), getLessonHistory);
+router.put("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), updateLesson);
+router.delete("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), deleteLesson);
+router.patch("/:id/review", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), reviewLesson);
+router.patch("/:id/publish", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), publishLesson);
 
 export default router;

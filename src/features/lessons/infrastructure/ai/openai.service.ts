@@ -30,9 +30,9 @@ export class OpenAIService {
 
 			// Generate response from OpenAI
 			const response = await this.openai.chat.completions.create({
-				model: "gpt-4.1-mini",
-				max_completion_tokens: 300,
-
+				model: env.OPENAI_FAST_MODEL,
+				max_completion_tokens: 1500,
+				temperature: 0.5,
 				messages: [
 					{ role: "system", content: policy.systemPrompt },
 					{ role: "user", content: prompt },

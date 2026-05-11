@@ -14,6 +14,7 @@ import { ListTeacherLessonsUseCase } from "../../application/useCases/listTeache
 import { GetTeacherStatsUseCase } from "../../application/useCases/getTeacherStats.usecase";
 import { GetTeacherStudentsUseCase } from "../../application/useCases/getTeacherStudents.usecase";
 import { GetLessonBySlugUseCase } from "../../application/useCases/getLessonBySlug.usecase";
+import { GetLessonHistoryUseCase } from "../../application/useCases/getLessonHistory.usecase";
 
 export function lessonControllerFactory(): LessonController {
 	const lessonRepoImpl = new LessonRepositoryImpl(supabase);
@@ -32,6 +33,7 @@ export function lessonControllerFactory(): LessonController {
 		listTeacherLessonsUseCase: new ListTeacherLessonsUseCase(lessonRepoImpl),
 		getTeacherStatsUseCase: new GetTeacherStatsUseCase(lessonRepoImpl),
 		getTeacherStudentsUseCase: new GetTeacherStudentsUseCase(lessonRepoImpl),
+		getLessonHistoryUseCase: new GetLessonHistoryUseCase(lessonRepoImpl),
 	};
 	return new LessonController(lessonServices);
 }

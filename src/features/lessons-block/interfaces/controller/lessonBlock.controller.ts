@@ -5,6 +5,7 @@ import type { CreateLessonBlockUseCase } from "../../application/useCases/create
 import { GetLessonBlockUsecase } from "../../application/useCases/getLessonBlockUsecase.usecase";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware";
 import type { GetBlocksByLessonIdUseCase } from "../../application/useCases/getBlocksByLessonIdUseCase";
+import type { UpdateContentBlockUseCase } from "../../application/useCases/updateContentBlockUseCase";
 
 export class LessonBlockController {
 	constructor(
@@ -12,6 +13,7 @@ export class LessonBlockController {
 			getLessonBlockById: GetLessonBlockUsecase;
 			getBlocksByLessonId: GetBlocksByLessonIdUseCase;
 			createLessonBlock: CreateLessonBlockUseCase;
+			updateContent: UpdateContentBlockUseCase;
 		},
 	) {}
 
@@ -42,6 +44,21 @@ export class LessonBlockController {
 				success: true,
 				data: blocks,
 			});
+		},
+	);
+
+	updateContent = asyncHandlerMiddleware(
+		async (req: Request, res: Response) => {
+			const id = readRequiredString(req.params.id, "Block id is required");
+			const { content } = req.body as { content?: unknown };
+			if (!Array.isArray(content)) {
+				throw new AppError("content must be an array", 400);
+			}
+			await this.lessonBlockServices.updateContent.execute(
+				id,
+				content as Record<string, unknown>[],
+			);
+			return res.status(200).json({ success: true });
 		},
 	);
 

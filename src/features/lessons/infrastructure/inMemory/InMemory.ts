@@ -48,4 +48,10 @@ export class InMemoryImpl implements ILessonRepository {
 	publish(_id: string): Promise<void> {
 		throw new Error("Method not implemented.");
 	}
+	logEdit(_lessonId: string, _editorId: string, _changes: import("../../domain/repositories/LeasonRepository").LessonEditChange[]): Promise<void> {
+		return Promise.resolve();
+	}
+	getHistory(_lessonId: string): Promise<import("../../domain/repositories/LeasonRepository").LessonEditEntry[]> {
+		return Promise.resolve([]);
+	}
 }
