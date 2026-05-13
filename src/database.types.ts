@@ -701,6 +701,110 @@ export type Database = {
           },
         ]
       }
+      feedback_options: {
+        Row: {
+          id: string
+          component_type: string
+          label: string
+          position: number
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          component_type: string
+          label: string
+          position?: number
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          component_type?: string
+          label?: string
+          position?: number
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      lesson_component_feedback: {
+        Row: {
+          id: string
+          lesson_id: string
+          component_id: string
+          user_id: string
+          vote: string
+          message: string | null
+          selected_option_ids: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          lesson_id: string
+          component_id: string
+          user_id: string
+          vote: string
+          message?: string | null
+          selected_option_ids?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          lesson_id?: string
+          component_id?: string
+          user_id?: string
+          vote?: string
+          message?: string | null
+          selected_option_ids?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lesson_theory_interactions: {
+        Row: {
+          id: string
+          lesson_id: string
+          component_type: string
+          content: Json
+          status: string
+          version: number
+          created_at: string
+          updated_at: string
+          created_by: string | null
+        }
+        Insert: {
+          id?: string
+          lesson_id: string
+          component_type: string
+          content: Json
+          status?: string
+          version?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Update: {
+          id?: string
+          lesson_id?: string
+          component_type?: string
+          content?: Json
+          status?: string
+          version?: number
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_theory_interactions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lessons: {
         Row: {
           created_at: string | null

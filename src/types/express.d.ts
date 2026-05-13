@@ -8,6 +8,8 @@ declare global {
 			user?: {
 				userRole: role;
 			};
+			userId?: string;
+			userRole?: role;
 		}
 	}
 }

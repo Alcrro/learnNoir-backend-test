@@ -631,6 +631,57 @@ export type Database = {
           },
         ]
       }
+      lesson_theory_interactions: {
+        Row: {
+          component_type: string
+          content: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          lesson_id: string
+          status: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          component_type: string
+          content: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lesson_id: string
+          status?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          component_type?: string
+          content?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          lesson_id?: string
+          status?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_theory_interactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_theory_interactions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_versions: {
         Row: {
           concept_id: string | null

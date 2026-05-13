@@ -17,6 +17,7 @@ import subjectsRoutes from "./features/subjects/interfaces/routes/SubjectsRoute.
 import categoriesRoutes from "./features/categories/interfaces/routes/http/CategoriesRouter.route";
 import progressRoutes from "./features/progress/interfaces/routes/progress.routes";
 import lessonAudioRoutes from "./features/lesson-audio/interfaces/routes/lessonAudio.routes";
+import lessonTheoryInteractionsRoutes from "./features/lesson-theory-interactions/interfaces/routes/LessonTheoryInteractions.routes";
 
 // Global error and 404 handlers
 import { errorHandler, notFoundHandler } from "./utils/errors/errorMiddleware";
@@ -32,11 +33,11 @@ app.use(
 	helmet({
 		contentSecurityPolicy: {
 			directives: {
-				defaultSrc: ["'self'"],                              // Block all external resources by default
-				scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],   // Allow scripts only from self + jsdelivr
-				styleSrc: ["'self'", "https://cdn.jsdelivr.net"],    // Allow styles only from self + jsdelivr
-				imgSrc: ["'self'", "data:"],                         // Allow images from self and inline data URIs
-				connectSrc: ["'self'", "https://api.openai.com"],    // Allow fetch/XHR to self and OpenAI API
+				defaultSrc: ["'self'"], // Block all external resources by default
+				scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // Allow scripts only from self + jsdelivr
+				styleSrc: ["'self'", "https://cdn.jsdelivr.net"], // Allow styles only from self + jsdelivr
+				imgSrc: ["'self'", "data:"], // Allow images from self and inline data URIs
+				connectSrc: ["'self'", "https://api.openai.com"], // Allow fetch/XHR to self and OpenAI API
 			},
 		},
 	}),
@@ -46,7 +47,7 @@ app.use(
 app.use(
 	cors({
 		origin: env.CORS_ORIGIN, // Driven by env — no hardcoded URLs in source
-		credentials: true,      // Required to forward the httpOnly accessToken cookie
+		credentials: true, // Required to forward the httpOnly accessToken cookie
 	}),
 );
 
@@ -58,18 +59,19 @@ app.use(cookieParser());
 app.use(express.json());
 
 // ── Feature routes ─────────────────────────────────────────────────────────────
-app.use("/api/openai", openaiRoutes);                      // AI-powered lesson generation
-app.use("/api/lessons/ai", lessonAIRoutes);                // AI assistant for lesson editing (teacher-only)
-app.use("/api/lessons", lessonsRoutes);                    // Lesson CRUD
-app.use("/api/lessons-block", lessonsBlockRoutes);         // Lesson block content (content / interactive / assessment)
+app.use("/api/openai", openaiRoutes); // AI-powered lesson generation
+app.use("/api/lessons/ai", lessonAIRoutes); // AI assistant for lesson editing (teacher-only)
+app.use("/api/lessons", lessonsRoutes); // Lesson CRUD
+app.use("/api/lessons-block", lessonsBlockRoutes); // Lesson block content (content / interactive / assessment)
 app.use("/api/lesson-activities", lessonActivitiesRoutes); // Per-user lesson activity tracking
-app.use("/api/modules", modulesRoutes);                    // Course modules grouping lessons
-app.use("/api/subjects", subjectsRoutes);                  // Top-level subjects (Computer Science, Math…)
-app.use("/api/categories", categoriesRoutes);              // Categories for organising content
-app.use("/api/progress", progressRoutes);                  // User learning progress
-app.use("/api/lessons", lessonAudioRoutes);                // Lesson audio narration (Watch tab)
-app.use("/api/auth", authRoutes);                          // Login, register, token refresh, logout
-app.use("/api/profiles", profilesRoutes);                  // User profile management
+app.use("/api/modules", modulesRoutes); // Course modules grouping lessons
+app.use("/api/subjects", subjectsRoutes); // Top-level subjects (Computer Science, Math…)
+app.use("/api/categories", categoriesRoutes); // Categories for organising content
+app.use("/api/progress", progressRoutes); // User learning progress
+app.use("/api/lessons", lessonAudioRoutes); // Lesson audio narration (Watch tab)
+app.use("/api/lessons/:lessonId/theory-interactions", lessonTheoryInteractionsRoutes); // Theory interaction components (V2 learning layout)
+app.use("/api/auth", authRoutes); // Login, register, token refresh, logout
+app.use("/api/profiles", profilesRoutes); // User profile management
 
 // ── Global error handling (must be registered last) ───────────────────────────
 // Return a 404 JSON response for any route that didn't match above
