@@ -30,7 +30,7 @@ export const env = {
 
 	// ── CORS ──────────────────────────────────────────────────────────────────
 	// Set CORS_ORIGIN=https://yourapp.vercel.app in production .env
-	CORS_ORIGIN: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+	CORS_ORIGIN: process.env.CORS_ORIGIN ?? "http://0.0.0.0:5173",
 
 	// ── Supabase ──────────────────────────────────────────────────────────────
 	SUPABASE_URL: process.env.SUPABASE_URL as string,
@@ -46,9 +46,17 @@ export const env = {
 	// Model for fast, cheap tasks (titles, descriptions, reviews, narration scripts)
 	OPENAI_FAST_MODEL: process.env.OPENAI_FAST_MODEL ?? "gpt-4.1-mini",
 	// TTS model: "tts-1" (fast) | "tts-1-hd" (higher quality)
-	OPENAI_TTS_MODEL: (process.env.OPENAI_TTS_MODEL ?? "tts-1-hd") as "tts-1" | "tts-1-hd",
+	OPENAI_TTS_MODEL: (process.env.OPENAI_TTS_MODEL ?? "tts-1-hd") as
+		| "tts-1"
+		| "tts-1-hd",
 	// TTS voice: alloy | echo | fable | onyx | nova | shimmer
-	OPENAI_TTS_VOICE: (process.env.OPENAI_TTS_VOICE ?? "onyx") as "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer",
+	OPENAI_TTS_VOICE: (process.env.OPENAI_TTS_VOICE ?? "onyx") as
+		| "alloy"
+		| "echo"
+		| "fable"
+		| "onyx"
+		| "nova"
+		| "shimmer",
 
 	// ── Redis / Cache ─────────────────────────────────────────────────────────
 	REDIS_URL: process.env.REDIS_URL as string,

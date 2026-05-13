@@ -10,7 +10,6 @@ export class RegisterUserUseCase {
 	async execute(email: string, passsword: string): Promise<string> {
 		try {
 			const data = await this.authRepo.registerWithPassword(email, passsword);
-			console.log(data);
 
 			if (!data.userId) {
 				throw new Error("User ID missing from registration response");

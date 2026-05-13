@@ -59,8 +59,6 @@ export class AuthController {
 	getCurrentUser = async (req: RequestWithUserId, res: Response) => {
 		const userId = req.userId;
 
-		console.log("mere?", { userId });
-
 		if (!userId) {
 			return res.status(404).json({ error: "User not found" });
 		}

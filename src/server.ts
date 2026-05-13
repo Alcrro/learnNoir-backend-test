@@ -16,7 +16,7 @@ const shutdown = (signal: string) => {
 };
 
 process.on("SIGTERM", () => shutdown("SIGTERM")); // Sent by Docker / Kubernetes / PM2 on stop
-process.on("SIGINT", () => shutdown("SIGINT"));   // Sent by Ctrl+C in terminal
+process.on("SIGINT", () => shutdown("SIGINT")); // Sent by Ctrl+C in terminal
 
 // Catch promise rejections not handled with .catch() — prevents silent failures
 process.on("unhandledRejection", (reason) => {

@@ -32,7 +32,6 @@ export class AuthRepositoryImpl implements IAuthRepository {
 			password,
 		});
 
-		console.log({ data, error });
 		if (error) throw new AppError(error.message);
 
 		if (!data.session) {
