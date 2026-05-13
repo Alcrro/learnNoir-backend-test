@@ -69,7 +69,10 @@ app.use("/api/subjects", subjectsRoutes); // Top-level subjects (Computer Scienc
 app.use("/api/categories", categoriesRoutes); // Categories for organising content
 app.use("/api/progress", progressRoutes); // User learning progress
 app.use("/api/lessons", lessonAudioRoutes); // Lesson audio narration (Watch tab)
-app.use("/api/lessons/:lessonId/theory-interactions", lessonTheoryInteractionsRoutes); // Theory interaction components (V2 learning layout)
+app.use(
+	"/api/lessons/:lessonId/theory-interactions",
+	lessonTheoryInteractionsRoutes,
+); // Theory interaction components (V2 learning layout)
 app.use("/api/auth", authRoutes); // Login, register, token refresh, logout
 app.use("/api/profiles", profilesRoutes); // User profile management
 

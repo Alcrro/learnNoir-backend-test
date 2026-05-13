@@ -6,8 +6,6 @@ import { ProfileIfrMapper } from "../mapper/ProfileInfr.mapper";
 export class ProfileRepoImpl implements IProfileRepository {
 	constructor(private readonly db: SupabaseClient) {}
 	async getProfile(userId: string): Promise<Profile> {
-		console.log("mere?", userId);
-
 		const { data, error } = await this.db
 			.from("profiles")
 			.select("*")

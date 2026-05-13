@@ -5,7 +5,6 @@ type RequestWithUser = Request & { userRole?: role };
 export function roleRequiredMiddleware(requiredRole: role[]) {
 	return (req: RequestWithUser, res: Response, next: NextFunction) => {
 		const userRole = req?.userRole; // Assuming req.user is populated by authentication middleware
-		console.log("user role mere?", { userRole });
 
 		if (!userRole) {
 			return res.status(401).json({ message: "Unauthorized: No role found" });
