@@ -4,6 +4,7 @@ export class LessonActivityEntity {
 	public readonly id: string;
 	public readonly lessonId: string;
 	public readonly lessonBlockId: string | null;
+	public readonly theoryInteractionId: string | null;
 	public readonly type: ActivityType;
 	public readonly title: string;
 	public readonly weight: number;
@@ -14,6 +15,7 @@ export class LessonActivityEntity {
 		id?: string;
 		lessonId: string;
 		lessonBlockId?: string | null;
+		theoryInteractionId?: string | null;
 		type: ActivityType;
 		title: string;
 		weight: number;
@@ -36,6 +38,7 @@ export class LessonActivityEntity {
 		this.id = params.id ?? crypto.randomUUID();
 		this.lessonId = params.lessonId.trim();
 		this.lessonBlockId = params.lessonBlockId ?? null;
+		this.theoryInteractionId = params.theoryInteractionId ?? null;
 		this.type = params.type;
 		this.title = params.title.trim();
 		this.weight = params.weight;
@@ -55,6 +58,7 @@ export class LessonActivityEntity {
 			id: this.id,
 			lessonId: this.lessonId,
 			lessonBlockId: this.lessonBlockId,
+			theoryInteractionId: this.theoryInteractionId,
 			type: this.type,
 			title: this.title,
 			weight: this.weight,

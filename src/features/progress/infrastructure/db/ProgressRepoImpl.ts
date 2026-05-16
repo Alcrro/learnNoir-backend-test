@@ -4,6 +4,7 @@ import type { Database } from "../../../../database.types";
 import type { ProgressRepository } from "../../domain/repositories/ProgressRepository";
 import type {
 	LessonProgress,
+	LessonProgressWithLesson,
 	UpsertProgressInput,
 } from "../../domain/types/LessonProgress.type";
 
@@ -34,6 +35,35 @@ function computeWeightedScore(quiz: number, read: number, output: number): numbe
 
 export class ProgressRepoImpl implements ProgressRepository {
 	constructor(private readonly db: SupabaseClient<Database>) {}
+
+	async getAllByUser(userId: string): Promise<LessonProgressWithLesson[]> {
+		const { data, error } = await this.db
+			.from("user_lesson_progress")
+			.select(
+				`*, lessons!lesson_id ( title, slug, status, modules!module_id ( name ) )`,
+			)
+			.eq("user_id", userId)
+			.order("last_activity_at", { ascending: false });
+
+		if (error) throw new DatabaseError(error.message);
+
+		return (data ?? []).map((row) => {
+			const lesson = row.lessons as {
+				title: string;
+				slug: string;
+				status: string | null;
+				modules: { name: string } | null;
+			} | null;
+
+			return {
+				...toDomain(row),
+				lessonTitle: lesson?.title ?? "Untitled lesson",
+				lessonSlug: lesson?.slug ?? "",
+				lessonStatus: lesson?.status ?? "draft",
+				moduleName: lesson?.modules?.name ?? "",
+			};
+		});
+	}
 
 	async getByUserAndLesson(userId: string, lessonId: string): Promise<LessonProgress | null> {
 		const { data, error } = await this.db

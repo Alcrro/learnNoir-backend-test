@@ -7,6 +7,9 @@ import type { GetComponentFeedbackUseCase } from "../../application/useCases/Get
 import type { UpsertComponentFeedbackUseCase } from "../../application/useCases/UpsertComponentFeedback.usecase.ts";
 import type { DeleteComponentFeedbackUseCase } from "../../application/useCases/DeleteComponentFeedback.usecase.ts";
 import type { GetFeedbackOptionsUseCase } from "../../application/useCases/GetFeedbackOptions.usecase.ts";
+import type { RecordTheoryAttemptUseCase } from "../../application/useCases/RecordTheoryAttempt.usecase.ts";
+import type { GetUserTheoryAttemptsUseCase } from "../../application/useCases/GetUserTheoryAttempts.usecase.ts";
+import type { EngageTheoryComponentUseCase } from "../../application/useCases/EngageTheoryComponent.usecase.ts";
 import { THEORY_INTERACTION_COMPONENTS } from "../../domain/types/LessonTheoryInteraction.type.ts";
 import type { TheoryInteractionComponentType, TheoryInteractionContent, LessonContextForAI } from "../../domain/types/LessonTheoryInteraction.type.ts";
 import type { ComponentFeedbackVote } from "../../domain/types/ComponentFeedback.type.ts";
@@ -22,6 +25,9 @@ export class LessonTheoryInteractionsController {
 		private upsertFeedbackUseCase: UpsertComponentFeedbackUseCase,
 		private deleteFeedbackUseCase: DeleteComponentFeedbackUseCase,
 		private getFeedbackOptionsUseCase: GetFeedbackOptionsUseCase,
+		private recordAttemptUseCase: RecordTheoryAttemptUseCase,
+		private getUserAttemptsUseCase: GetUserTheoryAttemptsUseCase,
+		private engageComponentUseCase: EngageTheoryComponentUseCase,
 	) {}
 
 	/** GET /api/lessons/:lessonId/theory-interactions — approved only (students) */
@@ -141,5 +147,73 @@ export class LessonTheoryInteractionsController {
 
 		await this.deleteFeedbackUseCase.execute(lessonId, componentId, userId);
 		res.json({ success: true });
+	};
+
+	/** POST /api/lessons/:lessonId/theory-interactions/:interactionId/attempt */
+	recordAttempt = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+		if (!userId) {
+			res.status(401).json({ error: "Unauthorized" });
+			return;
+		}
+
+		const interactionId = req.params["interactionId"] as string;
+		const body = req.body as {
+			chosenAnswer: unknown;
+			correctAnswer?: unknown;
+			isCorrect?: boolean | null;
+		};
+
+		if (body.chosenAnswer === undefined) {
+			res.status(400).json({ error: "chosenAnswer is required" });
+			return;
+		}
+
+		const result = await this.recordAttemptUseCase.execute(userId, {
+			interactionId,
+			isCorrect: body.isCorrect ?? null,
+			chosenAnswer: body.chosenAnswer,
+			correctAnswer: body.correctAnswer ?? null,
+		});
+
+		res.status(201).json({ data: result });
+	};
+
+	/** POST /api/lessons/:lessonId/theory-interactions/engage */
+	engageComponent = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+		if (!userId) {
+			res.status(401).json({ error: "Unauthorized" });
+			return;
+		}
+
+		const lessonId = req.params["lessonId"] as string;
+		const { componentType } = req.body as { componentType?: string };
+
+		if (!componentType || !THEORY_INTERACTION_COMPONENTS.includes(componentType as TheoryInteractionComponentType)) {
+			res.status(400).json({ error: "Valid componentType is required" });
+			return;
+		}
+
+		const result = await this.engageComponentUseCase.execute(
+			userId,
+			lessonId,
+			componentType as TheoryInteractionComponentType,
+		);
+
+		res.json({ data: result });
+	};
+
+	/** GET /api/lessons/:lessonId/theory-interactions/my-attempts */
+	getUserAttempts = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+		if (!userId) {
+			res.status(401).json({ error: "Unauthorized" });
+			return;
+		}
+
+		const lessonId = req.params["lessonId"] as string;
+		const attempts = await this.getUserAttemptsUseCase.execute(userId, lessonId);
+		res.json({ data: attempts });
 	};
 }

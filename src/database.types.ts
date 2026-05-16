@@ -156,6 +156,7 @@ export type Database = {
           lesson_id: string
           position: number
           required: boolean
+          theory_interaction_id: string | null
           title: string
           type: Database["public"]["Enums"]["activity_type"]
           weight: number
@@ -167,6 +168,7 @@ export type Database = {
           lesson_id: string
           position: number
           required?: boolean
+          theory_interaction_id?: string | null
           title: string
           type: Database["public"]["Enums"]["activity_type"]
           weight: number
@@ -178,6 +180,7 @@ export type Database = {
           lesson_id?: string
           position?: number
           required?: boolean
+          theory_interaction_id?: string | null
           title?: string
           type?: Database["public"]["Enums"]["activity_type"]
           weight?: number
@@ -195,6 +198,13 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_activities_theory_interaction_id_fkey"
+            columns: ["theory_interaction_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_theory_interactions"
             referencedColumns: ["id"]
           },
         ]
@@ -275,23 +285,76 @@ export type Database = {
           },
         ]
       }
+      lesson_video: {
+        Row: {
+          generated_at: string | null
+          id: string
+          lesson_id: string
+          provider: string | null
+          script: Json
+          video_url: string
+        }
+        Insert: {
+          generated_at?: string | null
+          id?: string
+          lesson_id: string
+          provider?: string | null
+          script: Json
+          video_url: string
+        }
+        Update: {
+          generated_at?: string | null
+          id?: string
+          lesson_id?: string
+          provider?: string | null
+          script?: Json
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_video_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: true
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_authors: {
         Row: {
+          created_at: string | null
           lesson_id: string
           role: string | null
           user_id: string
         }
         Insert: {
+          created_at?: string | null
           lesson_id: string
           role?: string | null
           user_id: string
         }
         Update: {
+          created_at?: string | null
           lesson_id?: string
           role?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lesson_authors_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_authors_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lesson_block_feedback: {
         Row: {
@@ -442,52 +505,17 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "lesson_edit_history_editor_id_fkey"
+            columns: ["editor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lesson_edit_history_lesson_id_fkey"
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "lessons"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lesson_feedback: {
-        Row: {
-          created_at: string | null
-          feedback_text: string | null
-          id: string
-          lesson_version_id: string | null
-          rating: number | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          feedback_text?: string | null
-          id?: string
-          lesson_version_id?: string | null
-          rating?: number | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          feedback_text?: string | null
-          id?: string
-          lesson_version_id?: string | null
-          rating?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_feedback_lesson_version_id_fkey"
-            columns: ["lesson_version_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_versions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lesson_feedback_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -530,107 +558,6 @@ export type Database = {
           },
         ]
       }
-      lesson_processed_versions: {
-        Row: {
-          concept_id: string | null
-          created_at: string | null
-          id: string
-          keywords: string[] | null
-          learning_objectives: string[] | null
-          model_version: string | null
-          processed_content: Json
-          prompt_version: string | null
-          raw_version_id: string | null
-          summary: string | null
-          version: number
-        }
-        Insert: {
-          concept_id?: string | null
-          created_at?: string | null
-          id?: string
-          keywords?: string[] | null
-          learning_objectives?: string[] | null
-          model_version?: string | null
-          processed_content: Json
-          prompt_version?: string | null
-          raw_version_id?: string | null
-          summary?: string | null
-          version?: number
-        }
-        Update: {
-          concept_id?: string | null
-          created_at?: string | null
-          id?: string
-          keywords?: string[] | null
-          learning_objectives?: string[] | null
-          model_version?: string | null
-          processed_content?: Json
-          prompt_version?: string | null
-          raw_version_id?: string | null
-          summary?: string | null
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_processed_versions_concept_id_fkey"
-            columns: ["concept_id"]
-            isOneToOne: false
-            referencedRelation: "concepts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lesson_processed_versions_raw_version_id_fkey"
-            columns: ["raw_version_id"]
-            isOneToOne: false
-            referencedRelation: "lesson_raw_versions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lesson_raw_versions: {
-        Row: {
-          concept_id: string | null
-          created_at: string | null
-          id: string
-          raw_content: string
-          source_metadata: Json | null
-          source_type: string
-          title: string | null
-          uploaded_by: string | null
-          version: number
-        }
-        Insert: {
-          concept_id?: string | null
-          created_at?: string | null
-          id?: string
-          raw_content: string
-          source_metadata?: Json | null
-          source_type: string
-          title?: string | null
-          uploaded_by?: string | null
-          version?: number
-        }
-        Update: {
-          concept_id?: string | null
-          created_at?: string | null
-          id?: string
-          raw_content?: string
-          source_metadata?: Json | null
-          source_type?: string
-          title?: string | null
-          uploaded_by?: string | null
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_raw_versions_concept_id_fkey"
-            columns: ["concept_id"]
-            isOneToOne: false
-            referencedRelation: "concepts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       lesson_versions: {
         Row: {
           concept_id: string | null
@@ -641,8 +568,8 @@ export type Database = {
           grade_level_id: string | null
           id: string
           is_published: boolean | null
+          lesson_id: string
           pedagogy_style: string | null
-          processed_version_id: string | null
           title: string
           updated_at: string | null
           version: number | null
@@ -656,8 +583,8 @@ export type Database = {
           grade_level_id?: string | null
           id?: string
           is_published?: boolean | null
+          lesson_id: string
           pedagogy_style?: string | null
-          processed_version_id?: string | null
           title: string
           updated_at?: string | null
           version?: number | null
@@ -671,8 +598,8 @@ export type Database = {
           grade_level_id?: string | null
           id?: string
           is_published?: boolean | null
+          lesson_id?: string
           pedagogy_style?: string | null
-          processed_version_id?: string | null
           title?: string
           updated_at?: string | null
           version?: number | null
@@ -693,10 +620,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "lesson_versions_processed_version_id_fkey"
-            columns: ["processed_version_id"]
+            foreignKeyName: "lesson_versions_lesson_id_fkey"
+            columns: ["lesson_id"]
             isOneToOne: false
-            referencedRelation: "lesson_processed_versions"
+            referencedRelation: "lessons"
             referencedColumns: ["id"]
           },
         ]
@@ -731,7 +658,7 @@ export type Database = {
           lesson_id: string
           component_id: string
           user_id: string
-          vote: string
+          vote: "up" | "down"
           message: string | null
           selected_option_ids: string[]
           created_at: string
@@ -742,7 +669,7 @@ export type Database = {
           lesson_id: string
           component_id: string
           user_id: string
-          vote: string
+          vote: "up" | "down"
           message?: string | null
           selected_option_ids?: string[]
           created_at?: string
@@ -753,13 +680,28 @@ export type Database = {
           lesson_id?: string
           component_id?: string
           user_id?: string
-          vote?: string
+          vote?: "up" | "down"
           message?: string | null
           selected_option_ids?: string[]
           created_at?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lesson_component_feedback_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_component_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lesson_theory_interactions: {
         Row: {
@@ -810,6 +752,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           duration_seconds: number
+          grade_level_id: string | null
           id: string
           is_active: boolean | null
           module_id: string
@@ -823,6 +766,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration_seconds?: number
+          grade_level_id?: string | null
           id?: string
           is_active?: boolean | null
           module_id: string
@@ -836,6 +780,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           duration_seconds?: number
+          grade_level_id?: string | null
           id?: string
           is_active?: boolean | null
           module_id?: string
@@ -846,6 +791,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "lessons_grade_level_id_fkey"
+            columns: ["grade_level_id"]
+            isOneToOne: false
+            referencedRelation: "grade_levels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "lessons_module_id_fkey"
             columns: ["module_id"]
@@ -883,7 +835,15 @@ export type Database = {
           slug?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "modules_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -914,6 +874,54 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      theory_interaction_attempts: {
+        Row: {
+          attempt_number: number
+          chosen_answer: Json
+          correct_answer: Json | null
+          created_at: string
+          id: string
+          interaction_id: string
+          is_correct: boolean | null
+          user_id: string
+        }
+        Insert: {
+          attempt_number?: number
+          chosen_answer: Json
+          correct_answer?: Json | null
+          created_at?: string
+          id?: string
+          interaction_id: string
+          is_correct?: boolean | null
+          user_id: string
+        }
+        Update: {
+          attempt_number?: number
+          chosen_answer?: Json
+          correct_answer?: Json | null
+          created_at?: string
+          id?: string
+          interaction_id?: string
+          is_correct?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "theory_interaction_attempts_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_theory_interactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "theory_interaction_attempts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quiz_attempts: {
         Row: {

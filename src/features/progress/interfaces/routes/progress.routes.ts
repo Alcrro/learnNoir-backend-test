@@ -4,9 +4,10 @@ import { progressControllerFactory } from "../../infrastructure/factories/progre
 
 const router = Router();
 
-const { getLessonProgress, upsertLessonProgress } = progressControllerFactory();
+const { getLessonProgress, getUserProgress, upsertLessonProgress } = progressControllerFactory();
 
 // All progress endpoints require an authenticated user — progress is personal data.
+router.get("/me", requireAuthMiddleware, getUserProgress);
 router.get("/lesson/:lessonId", requireAuthMiddleware, getLessonProgress);
 router.patch("/lesson/:lessonId", requireAuthMiddleware, upsertLessonProgress);
 

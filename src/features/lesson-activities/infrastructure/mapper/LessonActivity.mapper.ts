@@ -17,6 +17,7 @@ export class LessonActivityMapper {
 			id: row.id,
 			lessonId: row.lesson_id,
 			lessonBlockId: row.lesson_block_id ?? null,
+			theoryInteractionId: row.theory_interaction_id ?? null,
 			type: row.type,
 			title: row.title,
 			weight: row.weight,
@@ -31,6 +32,7 @@ export class LessonActivityMapper {
 			id: p.id,
 			lesson_id: p.lessonId,
 			lesson_block_id: p.lessonBlockId ?? null,
+			theory_interaction_id: p.theoryInteractionId ?? null,
 			type: p.type,
 			title: p.title,
 			weight: p.weight,
@@ -43,6 +45,7 @@ export class LessonActivityMapper {
 		const p = activity.toPrimitives();
 		return {
 			lesson_block_id: p.lessonBlockId ?? null,
+			theory_interaction_id: p.theoryInteractionId ?? null,
 			type: p.type,
 			title: p.title,
 			weight: p.weight,

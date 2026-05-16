@@ -2,6 +2,7 @@ import type { Response } from "express";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware";
 import type { RequestWithUserId } from "../../../auth/interfaces/controllers/Auth.controller";
 import type { GetLessonProgressUseCase } from "../../application/useCases/getLessonProgressUseCase";
+import type { GetUserProgressUseCase } from "../../application/useCases/getUserProgressUseCase";
 import type { UpsertLessonProgressUseCase } from "../../application/useCases/upsertLessonProgressUseCase";
 import type { UpsertProgressInput } from "../../domain/types/LessonProgress.type";
 
@@ -9,9 +10,23 @@ export class ProgressController {
 	constructor(
 		private readonly services: {
 			getLessonProgress: GetLessonProgressUseCase;
+			getUserProgress: GetUserProgressUseCase;
 			upsertLessonProgress: UpsertLessonProgressUseCase;
 		},
 	) {}
+
+	// GET /progress/me
+	// Returns all progress rows for the current user, each joined with lesson + module metadata.
+	getUserProgress = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const userId = req.userId;
+			if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+			const progress = await this.services.getUserProgress.execute(userId);
+
+			return res.status(200).json({ data: progress });
+		},
+	);
 
 	// GET /progress/lesson/:lessonId
 	// Returns the current user's progress for the lesson. 200 with data: null when not started.

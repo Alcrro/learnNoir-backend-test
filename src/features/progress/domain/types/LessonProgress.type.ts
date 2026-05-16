@@ -19,6 +19,15 @@ export type LessonProgress = {
 	updatedAt: string | null;
 };
 
+// LessonProgress joined with lesson title, slug and module name.
+// Returned by GET /progress/me.
+export type LessonProgressWithLesson = LessonProgress & {
+	lessonTitle: string;
+	lessonSlug: string;
+	lessonStatus: string;
+	moduleName: string;
+};
+
 // Only the fields a client is allowed to update.
 export type UpsertProgressInput = {
 	status?: ProgressStatus;

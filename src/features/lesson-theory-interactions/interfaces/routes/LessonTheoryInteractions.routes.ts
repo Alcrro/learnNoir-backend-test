@@ -15,6 +15,14 @@ router.get(
 	asyncHandlerMiddleware(controller.getApproved),
 );
 
+// GET /api/lessons/:lessonId/theory-interactions/my-attempts
+// Must be registered before /:componentId routes to avoid matching "my-attempts" as a param
+router.get(
+	"/my-attempts",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.getUserAttempts),
+);
+
 // ── Teacher routes (teacher or admin role) ────────────────────────────────────
 // GET /api/lessons/:lessonId/theory-interactions/all
 router.get(
@@ -75,6 +83,24 @@ router.delete(
 	"/:componentId/feedback",
 	requireAuthMiddleware,
 	asyncHandlerMiddleware(controller.deleteFeedback),
+);
+
+// ── Student engagement route ───────────────────────────────────────────────────
+// POST /api/lessons/:lessonId/theory-interactions/engage
+// Records that the student engaged with a theory component; creates the activity lazily.
+// Works even when no teacher-approved interaction exists for the component.
+router.post(
+	"/engage",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.engageComponent),
+);
+
+// ── Student attempt routes ─────────────────────────────────────────────────────
+// POST /api/lessons/:lessonId/theory-interactions/:interactionId/attempt
+router.post(
+	"/:interactionId/attempt",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.recordAttempt),
 );
 
 export default router;
