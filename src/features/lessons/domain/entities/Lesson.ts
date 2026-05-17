@@ -3,6 +3,7 @@ import type { ILesson, LessonAuthor, LessonStatus } from "../types/Lesson.type";
 export class LessonEntity {
 	public readonly id: string;
 	public readonly moduleId: string;
+	public gradeLevelId: string | null;
 	public title: string;
 	public slug: string;
 	public description?: string | null;
@@ -18,6 +19,7 @@ export class LessonEntity {
 	constructor(params: {
 		id?: string;
 		moduleId: string;
+		gradeLevelId?: string | null;
 		title: string;
 		slug?: string;
 		description?: string | null;
@@ -33,6 +35,7 @@ export class LessonEntity {
 
 		this.id = params.id ?? crypto.randomUUID();
 		this.moduleId = params.moduleId;
+		this.gradeLevelId = params.gradeLevelId ?? null;
 		this.title = params.title;
 		this.slug = params.slug ?? createLessonSlug(params.title);
 		this.description = params.description ?? null;

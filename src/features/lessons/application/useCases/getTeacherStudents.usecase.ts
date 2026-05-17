@@ -1,10 +1,10 @@
-import type { ILessonRepository } from "../../domain/repositories/LeasonRepository";
+import type { ILessonQueryRepository } from "../repositories/ILessonQueryRepository.ts";
 import type { TeacherStudentDTO } from "../dto/TeacherLessons.dto";
 
 export class GetTeacherStudentsUseCase {
-	constructor(private readonly lessonRepo: ILessonRepository) {}
+	constructor(private readonly lessonQueryRepo: ILessonQueryRepository) {}
 
 	async execute(teacherId: string): Promise<TeacherStudentDTO[]> {
-		return this.lessonRepo.getTeacherStudents(teacherId);
+		return this.lessonQueryRepo.getTeacherStudents(teacherId);
 	}
 }

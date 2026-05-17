@@ -4,6 +4,7 @@ import { ListLessonsUseCase } from "../../application/useCases/listLessons.useca
 import { ListLessonsByModuleIdUseCase } from "../../application/useCases/listLessonsByModuleId.usecase";
 import { LessonController } from "../../interfaces/controller/Lessons.controller";
 import { LessonRepositoryImpl } from "../db/lessonRepoImpl";
+import { LessonQueryRepositoryImpl } from "../db/lessonQueryRepoImpl";
 import { PublishLessonUseCase } from "../../application/useCases/publishLesson.usecase";
 import { CreateLessonUseCase } from "../../application/useCases/createLesson.usecase";
 import { DeleteLessonUseCase } from "../../application/useCases/deleteLesson.usecase";
@@ -15,25 +16,32 @@ import { GetTeacherStatsUseCase } from "../../application/useCases/getTeacherSta
 import { GetTeacherStudentsUseCase } from "../../application/useCases/getTeacherStudents.usecase";
 import { GetLessonBySlugUseCase } from "../../application/useCases/getLessonBySlug.usecase";
 import { GetLessonHistoryUseCase } from "../../application/useCases/getLessonHistory.usecase";
+import { GenerateBlocksFromTextUseCase } from "../../application/useCases/generateBlocksFromText.usecase";
+import { LessonAIService } from "../ai/lessonAI.service";
+import { LessonBlockRepoImpl } from "../../../lessons-block/infrastructure/db/LessonBlockRepoImpl";
 
 export function lessonControllerFactory(): LessonController {
-	const lessonRepoImpl = new LessonRepositoryImpl(supabase);
+	const lessonRepo = new LessonRepositoryImpl(supabase);
+	const lessonQueryRepo = new LessonQueryRepositoryImpl(supabase);
+	const blockRepoImpl = new LessonBlockRepoImpl(supabase);
+	const aiService = new LessonAIService();
 
 	const lessonServices = {
-		listLessonsUseCase: new ListLessonsUseCase(lessonRepoImpl),
-		listLessonsByModuleIdUseCase: new ListLessonsByModuleIdUseCase(lessonRepoImpl),
-		listLessonsByModuleSlugUseCase: new ListLessonsByModuleSlugUseCase(lessonRepoImpl),
-		getLessonUseCase: new GetLesson(lessonRepoImpl),
-		getLessonBySlugUseCase: new GetLessonBySlugUseCase(lessonRepoImpl),
-		createLessonUseCase: new CreateLessonUseCase(lessonRepoImpl),
-		updateLessonUseCase: new UpdateLessonUseCase(lessonRepoImpl),
-		deleteLessonUseCase: new DeleteLessonUseCase(lessonRepoImpl),
-		reviewLessonUseCase: new ReviewLessonUseCase(lessonRepoImpl),
-		publishLessonUseCase: new PublishLessonUseCase(lessonRepoImpl),
-		listTeacherLessonsUseCase: new ListTeacherLessonsUseCase(lessonRepoImpl),
-		getTeacherStatsUseCase: new GetTeacherStatsUseCase(lessonRepoImpl),
-		getTeacherStudentsUseCase: new GetTeacherStudentsUseCase(lessonRepoImpl),
-		getLessonHistoryUseCase: new GetLessonHistoryUseCase(lessonRepoImpl),
+		listLessonsUseCase: new ListLessonsUseCase(lessonRepo),
+		listLessonsByModuleIdUseCase: new ListLessonsByModuleIdUseCase(lessonRepo),
+		listLessonsByModuleSlugUseCase: new ListLessonsByModuleSlugUseCase(lessonRepo),
+		getLessonUseCase: new GetLesson(lessonRepo),
+		getLessonBySlugUseCase: new GetLessonBySlugUseCase(lessonRepo),
+		createLessonUseCase: new CreateLessonUseCase(lessonRepo),
+		updateLessonUseCase: new UpdateLessonUseCase(lessonRepo),
+		deleteLessonUseCase: new DeleteLessonUseCase(lessonRepo),
+		reviewLessonUseCase: new ReviewLessonUseCase(lessonRepo),
+		publishLessonUseCase: new PublishLessonUseCase(lessonRepo),
+		listTeacherLessonsUseCase: new ListTeacherLessonsUseCase(lessonQueryRepo),
+		getTeacherStatsUseCase: new GetTeacherStatsUseCase(lessonQueryRepo),
+		getTeacherStudentsUseCase: new GetTeacherStudentsUseCase(lessonQueryRepo),
+		getLessonHistoryUseCase: new GetLessonHistoryUseCase(lessonQueryRepo),
+		generateBlocksFromTextUseCase: new GenerateBlocksFromTextUseCase(aiService, blockRepoImpl),
 	};
 	return new LessonController(lessonServices);
 }

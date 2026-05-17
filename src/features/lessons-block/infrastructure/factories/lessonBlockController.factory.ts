@@ -3,6 +3,7 @@ import { LessonRepositoryImpl } from "../../../lessons/infrastructure/db/lessonR
 import { CreateLessonBlockUseCase } from "../../application/useCases/createLessonBlockUseCase.usecase";
 import { GetLessonBlockUsecase } from "../../application/useCases/getLessonBlockUsecase.usecase";
 import { GetBlocksByLessonIdUseCase } from "../../application/useCases/getBlocksByLessonIdUseCase";
+import { GetBlocksPreviewUseCase } from "../../application/useCases/GetBlocksPreviewUseCase";
 import { UpdateContentBlockUseCase } from "../../application/useCases/updateContentBlockUseCase";
 import { LessonBlockFactory } from "../../domain/factories/lessonBlock.factory";
 import { LessonBlockController } from "../../interfaces/controller/lessonBlock.controller";
@@ -16,6 +17,7 @@ export const useLessonBlockControllerFactory = (): LessonBlockController => {
 	return new LessonBlockController({
 		getLessonBlockById: new GetLessonBlockUsecase(lessonBlockRepository),
 		getBlocksByLessonId: new GetBlocksByLessonIdUseCase(lessonBlockRepository),
+		getBlocksPreview: new GetBlocksPreviewUseCase(lessonBlockRepository),
 		createLessonBlock: new CreateLessonBlockUseCase(
 			lessonBlockRepository,
 			lessonRepository,

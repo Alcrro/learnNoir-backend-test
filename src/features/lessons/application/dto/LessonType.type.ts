@@ -4,6 +4,7 @@ export type LessonDTO = ILesson;
 
 export type CreateLessonDTO = {
 	moduleId: string;
+	gradeLevelId?: string | null;
 	title: string;
 	slug?: string;
 	description?: string | null;

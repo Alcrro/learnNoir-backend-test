@@ -15,6 +15,7 @@ import { GetFeedbackOptionsUseCase } from "../../application/useCases/GetFeedbac
 import { RecordTheoryAttemptUseCase } from "../../application/useCases/RecordTheoryAttempt.usecase.ts";
 import { GetUserTheoryAttemptsUseCase } from "../../application/useCases/GetUserTheoryAttempts.usecase.ts";
 import { EngageTheoryComponentUseCase } from "../../application/useCases/EngageTheoryComponent.usecase.ts";
+import { GetUserEngagedComponentsUseCase } from "../../application/useCases/GetUserEngagedComponents.usecase.ts";
 import { ProgressRepoImpl } from "../../../progress/infrastructure/db/ProgressRepoImpl.ts";
 import { supabase } from "../../../../core/db/supabaseClient.ts";
 import { LessonTheoryInteractionsController } from "../../interfaces/controllers/LessonTheoryInteractions.controller.ts";
@@ -40,6 +41,7 @@ export function createLessonTheoryInteractionsController(): LessonTheoryInteract
 	const recordAttemptUseCase = new RecordTheoryAttemptUseCase(repo, attemptRepo, activityProgressRepo, progressRepo);
 	const getUserAttemptsUseCase = new GetUserTheoryAttemptsUseCase(attemptRepo);
 	const engageComponentUseCase = new EngageTheoryComponentUseCase(repo, activityProgressRepo, progressRepo);
+	const getEngagedComponentsUseCase = new GetUserEngagedComponentsUseCase(activityProgressRepo);
 
 	return new LessonTheoryInteractionsController(
 		generateUseCase,
@@ -54,5 +56,6 @@ export function createLessonTheoryInteractionsController(): LessonTheoryInteract
 		recordAttemptUseCase,
 		getUserAttemptsUseCase,
 		engageComponentUseCase,
+		getEngagedComponentsUseCase,
 	);
 }

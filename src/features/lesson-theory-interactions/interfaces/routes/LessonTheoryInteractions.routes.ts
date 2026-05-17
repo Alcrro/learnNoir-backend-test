@@ -23,6 +23,14 @@ router.get(
 	asyncHandlerMiddleware(controller.getUserAttempts),
 );
 
+// GET /api/lessons/:lessonId/theory-interactions/my-progress
+// Returns component types the user has completed via the engage flow.
+router.get(
+	"/my-progress",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.getMyProgress),
+);
+
 // ── Teacher routes (teacher or admin role) ────────────────────────────────────
 // GET /api/lessons/:lessonId/theory-interactions/all
 router.get(

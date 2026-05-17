@@ -15,6 +15,7 @@ import type { GetTeacherStatsUseCase } from "../../application/useCases/getTeach
 import type { GetTeacherStudentsUseCase } from "../../application/useCases/getTeacherStudents.usecase";
 import type { GetLessonBySlugUseCase } from "../../application/useCases/getLessonBySlug.usecase";
 import type { GetLessonHistoryUseCase } from "../../application/useCases/getLessonHistory.usecase";
+import type { GenerateBlocksFromTextUseCase } from "../../application/useCases/generateBlocksFromText.usecase";
 
 export class LessonController {
 	constructor(
@@ -33,6 +34,7 @@ export class LessonController {
 			getTeacherStatsUseCase: GetTeacherStatsUseCase;
 			getTeacherStudentsUseCase: GetTeacherStudentsUseCase;
 			getLessonHistoryUseCase: GetLessonHistoryUseCase;
+			generateBlocksFromTextUseCase: GenerateBlocksFromTextUseCase;
 		},
 	) {}
 
@@ -265,6 +267,28 @@ export class LessonController {
 		const history = await this.lessonService.getLessonHistoryUseCase.execute(id);
 		return res.status(200).json({ data: history });
 	});
+
+	generateBlocksFromText = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const lessonId = asString(req.params.id);
+			const { text } = req.body as { text?: string };
+
+			if (!lessonId) {
+				return res.status(400).json({ error: "Lesson ID is required" });
+			}
+
+			if (!text || typeof text !== "string" || text.trim().length < 10) {
+				return res.status(400).json({ error: "text is required (min 10 characters)" });
+			}
+
+			const block = await this.lessonService.generateBlocksFromTextUseCase.execute(
+				lessonId,
+				text.trim(),
+			);
+
+			return res.status(201).json({ data: block });
+		},
+	);
 }
 
 function asString(value: unknown) {

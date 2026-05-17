@@ -10,6 +10,7 @@ import type { GetFeedbackOptionsUseCase } from "../../application/useCases/GetFe
 import type { RecordTheoryAttemptUseCase } from "../../application/useCases/RecordTheoryAttempt.usecase.ts";
 import type { GetUserTheoryAttemptsUseCase } from "../../application/useCases/GetUserTheoryAttempts.usecase.ts";
 import type { EngageTheoryComponentUseCase } from "../../application/useCases/EngageTheoryComponent.usecase.ts";
+import type { GetUserEngagedComponentsUseCase } from "../../application/useCases/GetUserEngagedComponents.usecase.ts";
 import { THEORY_INTERACTION_COMPONENTS } from "../../domain/types/LessonTheoryInteraction.type.ts";
 import type { TheoryInteractionComponentType, TheoryInteractionContent, LessonContextForAI } from "../../domain/types/LessonTheoryInteraction.type.ts";
 import type { ComponentFeedbackVote } from "../../domain/types/ComponentFeedback.type.ts";
@@ -28,6 +29,7 @@ export class LessonTheoryInteractionsController {
 		private recordAttemptUseCase: RecordTheoryAttemptUseCase,
 		private getUserAttemptsUseCase: GetUserTheoryAttemptsUseCase,
 		private engageComponentUseCase: EngageTheoryComponentUseCase,
+		private getEngagedComponentsUseCase: GetUserEngagedComponentsUseCase,
 	) {}
 
 	/** GET /api/lessons/:lessonId/theory-interactions — approved only (students) */
@@ -215,5 +217,19 @@ export class LessonTheoryInteractionsController {
 		const lessonId = req.params["lessonId"] as string;
 		const attempts = await this.getUserAttemptsUseCase.execute(userId, lessonId);
 		res.json({ data: attempts });
+	};
+
+	/** GET /api/lessons/:lessonId/theory-interactions/my-progress
+	 *  Returns the list of component types the user has completed (engaged with). */
+	getMyProgress = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+		if (!userId) {
+			res.status(401).json({ error: "Unauthorized" });
+			return;
+		}
+
+		const lessonId = req.params["lessonId"] as string;
+		const components = await this.getEngagedComponentsUseCase.execute(userId, lessonId);
+		res.json({ data: components });
 	};
 }

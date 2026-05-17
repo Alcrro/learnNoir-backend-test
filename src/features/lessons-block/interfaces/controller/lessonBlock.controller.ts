@@ -6,12 +6,14 @@ import { GetLessonBlockUsecase } from "../../application/useCases/getLessonBlock
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware";
 import type { GetBlocksByLessonIdUseCase } from "../../application/useCases/getBlocksByLessonIdUseCase";
 import type { UpdateContentBlockUseCase } from "../../application/useCases/updateContentBlockUseCase";
+import type { GetBlocksPreviewUseCase } from "../../application/useCases/GetBlocksPreviewUseCase";
 
 export class LessonBlockController {
 	constructor(
 		private readonly lessonBlockServices: {
 			getLessonBlockById: GetLessonBlockUsecase;
 			getBlocksByLessonId: GetBlocksByLessonIdUseCase;
+			getBlocksPreview: GetBlocksPreviewUseCase;
 			createLessonBlock: CreateLessonBlockUseCase;
 			updateContent: UpdateContentBlockUseCase;
 		},
@@ -39,6 +41,21 @@ export class LessonBlockController {
 
 			const blocks =
 				await this.lessonBlockServices.getBlocksByLessonId.execute(lessonId);
+
+			return res.status(200).json({
+				success: true,
+				data: blocks,
+			});
+		},
+	);
+
+	// Returns free-tier preview: all content+interactive blocks + first 4 assessment blocks.
+	findPreviewByLessonId = asyncHandlerMiddleware(
+		async (req: Request, res: Response, _next: NextFunction) => {
+			const lessonId = readRequiredString(req.params.lessonId, "Lesson id is required");
+
+			const blocks =
+				await this.lessonBlockServices.getBlocksPreview.execute(lessonId);
 
 			return res.status(200).json({
 				success: true,

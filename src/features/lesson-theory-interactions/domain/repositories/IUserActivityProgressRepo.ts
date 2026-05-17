@@ -24,4 +24,9 @@ export interface IUserActivityProgressRepo {
 	 * Activities without progress count as score 0.
 	 */
 	computeWeightedQuizScore(userId: string, lessonId: string): Promise<number>;
+
+	/**
+	 * Returns the component_type values of all theory activities the user has completed (score > 0).
+	 */
+	getCompletedComponents(userId: string, lessonId: string): Promise<string[]>;
 }

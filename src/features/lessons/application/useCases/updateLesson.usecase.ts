@@ -31,6 +31,9 @@ export class UpdateLessonUseCase {
 		const updatedLesson = new Lesson({
 			id: currentLesson.id,
 			moduleId: lessonPatch.moduleId ?? currentLesson.moduleId,
+			gradeLevelId: lessonPatch.gradeLevelId !== undefined
+				? lessonPatch.gradeLevelId
+				: currentLesson.gradeLevelId,
 			title: nextTitle,
 			slug: nextSlug,
 			description: lessonPatch.description ?? currentLesson.description ?? null,

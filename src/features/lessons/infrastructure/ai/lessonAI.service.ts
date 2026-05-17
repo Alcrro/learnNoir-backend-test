@@ -9,6 +9,7 @@ import {
 	lessonStructuredContentPolicy,
 } from "../../../../policy/promptPolicies.ts";
 import type { LessonContentNode } from "@shared/lesson-block";
+import { lessonPrompts } from "./lessonPrompts.ts";
 
 export type LessonReviewResult = {
 	clarity: number;
@@ -35,24 +36,9 @@ export class LessonAIService {
 	// For structured block generation use generateStructuredBlocks().
 	async generateContent(topic: string, field: "title" | "description" | "content"): Promise<string> {
 		const configs: Record<typeof field, { prompt: string; model: string; maxTokens: number; temperature: number }> = {
-			title: {
-				prompt: `Write a concise, descriptive lesson title (max 70 characters) for the topic: "${topic}". Return only the title, no quotes.`,
-				model: env.OPENAI_FAST_MODEL,
-				maxTokens: 100,
-				temperature: 0.7,
-			},
-			description: {
-				prompt: `Write a 2–3 sentence lesson description for the topic: "${topic}". Explain what the student will learn and why it matters. Be specific and engaging. Return only the description.`,
-				model: env.OPENAI_FAST_MODEL,
-				maxTokens: 300,
-				temperature: 0.7,
-			},
-			content: {
-				prompt: `Write the main theory content for a lesson about "${topic}". Use clear headings and structured explanations covering: what it is, how it works, key properties, and real-world relevance. Target an intermediate-level CS student. Max 600 words.`,
-				model: env.OPENAI_CONTENT_MODEL,
-				maxTokens: 2000,
-				temperature: 0.5,
-			},
+			title: { prompt: lessonPrompts.title(topic), model: env.OPENAI_FAST_MODEL, maxTokens: 100, temperature: 0.7 },
+			description: { prompt: lessonPrompts.description(topic), model: env.OPENAI_FAST_MODEL, maxTokens: 300, temperature: 0.7 },
+			content: { prompt: lessonPrompts.content(topic), model: env.OPENAI_CONTENT_MODEL, maxTokens: 2000, temperature: 0.5 },
 		};
 
 		const cfg = configs[field];
@@ -62,7 +48,7 @@ export class LessonAIService {
 	// Generates a structured array of LessonContentNode blocks for a topic.
 	// These can be directly stored as a ContentLessonBlock.data.content array.
 	async generateStructuredBlocks(topic: string): Promise<LessonContentNode[]> {
-		const prompt = `Generate a complete structured lesson about "${topic}". Cover: the concept definition, step-by-step explanation, and time/space complexity if applicable.`;
+		const prompt = lessonPrompts.structuredBlocks(topic);
 
 		const raw = await this.callJson(
 			lessonStructuredContentPolicy.systemPrompt,
@@ -81,16 +67,11 @@ export class LessonAIService {
 	}
 
 	async improveText(text: string, context?: string): Promise<string> {
-		const prompt = context
-			? `Context: ${context}\n\nText to improve:\n${text}`
-			: `Text to improve:\n${text}`;
-
-		return this.callText(lessonImprovePolicy.systemPrompt, prompt, env.OPENAI_CONTENT_MODEL, 2000, 0.6);
+		return this.callText(lessonImprovePolicy.systemPrompt, lessonPrompts.improveText(text, context), env.OPENAI_CONTENT_MODEL, 2000, 0.6);
 	}
 
 	async reviewLesson(lesson: { title: string; description: string; content: string }): Promise<LessonReviewResult> {
-		const prompt = `Review this lesson:\n\nTitle: ${lesson.title}\nDescription: ${lesson.description}\n\nContent:\n${lesson.content}`;
-		const raw = await this.callJson(lessonReviewPolicy.systemPrompt, prompt, env.OPENAI_FAST_MODEL, 800, 0.3);
+		const raw = await this.callJson(lessonReviewPolicy.systemPrompt, lessonPrompts.reviewLesson(lesson), env.OPENAI_FAST_MODEL, 800, 0.3);
 		const obj = Array.isArray(raw) ? {} : raw;
 
 		return {
@@ -102,8 +83,7 @@ export class LessonAIService {
 	}
 
 	async generateMetadata(title: string, moduleName: string): Promise<{ description: string; durationMinutes: number }> {
-		const prompt = `Lesson title: "${title}"\nModule: "${moduleName}"\n\nReturn JSON: { "description": "...", "durationMinutes": <integer> }`;
-		const raw = await this.callJson(lessonMetadataPolicy.systemPrompt, prompt, env.OPENAI_FAST_MODEL, 200, 0.4);
+		const raw = await this.callJson(lessonMetadataPolicy.systemPrompt, lessonPrompts.generateMetadata(title, moduleName), env.OPENAI_FAST_MODEL, 200, 0.4);
 		const obj = Array.isArray(raw) ? {} : raw;
 		return {
 			description: typeof obj["description"] === "string" ? obj["description"] : "",
@@ -112,8 +92,7 @@ export class LessonAIService {
 	}
 
 	async generateQuizQuestions(content: string, count = 3): Promise<QuizQuestion[]> {
-		const prompt = `Generate ${count} multiple-choice questions for this lesson content:\n\n${content}`;
-		const raw = await this.callJson(lessonQuizPolicy.systemPrompt, prompt, env.OPENAI_CONTENT_MODEL, 2000, 0.5);
+		const raw = await this.callJson(lessonQuizPolicy.systemPrompt, lessonPrompts.generateQuizQuestions(content, count), env.OPENAI_CONTENT_MODEL, 2000, 0.5);
 
 		if (!Array.isArray(raw)) return [];
 

@@ -3,16 +3,19 @@ import { validateInput } from "../../../../utils/validateInputMiddleware";
 import { CreateLessonBlockSchema } from "../../application/dto/LessonBlock.dto";
 import { useLessonBlockControllerFactory } from "../../infrastructure/factories/lessonBlockController.factory";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware";
+import { requireProMiddleware } from "../../../../utils/requireProMiddleware";
 import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware";
 
 const route = Router();
 
-const { findOne, findByLessonId, createLessonBlock, updateContent } = useLessonBlockControllerFactory();
+const { findOne, findByLessonId, findPreviewByLessonId, createLessonBlock, updateContent } =
+	useLessonBlockControllerFactory();
 
 const teacherOnly = [requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"])];
 
-// Must be before /:id to avoid the route param swallowing "lesson"
-route.get("/lesson/:lessonId", findByLessonId);
+// /preview must be registered before /lesson/:lessonId to avoid param conflicts
+route.get("/lesson/:lessonId/preview", findPreviewByLessonId);
+route.get("/lesson/:lessonId", requireAuthMiddleware, requireProMiddleware, findByLessonId);
 route.get("/:id", findOne);
 route.post("/", validateInput(CreateLessonBlockSchema), createLessonBlock);
 route.patch("/:id/content", ...teacherOnly, updateContent);

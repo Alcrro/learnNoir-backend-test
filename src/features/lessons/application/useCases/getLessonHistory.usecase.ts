@@ -1,9 +1,10 @@
-import type { ILessonRepository, LessonEditEntry } from "../../domain/repositories/LeasonRepository";
+import type { ILessonQueryRepository } from "../repositories/ILessonQueryRepository.ts";
+import type { LessonEditEntry } from "../../domain/repositories/LeasonRepository";
 
 export class GetLessonHistoryUseCase {
-	constructor(private readonly lessonRepo: ILessonRepository) {}
+	constructor(private readonly lessonQueryRepo: ILessonQueryRepository) {}
 
 	async execute(lessonId: string): Promise<LessonEditEntry[]> {
-		return this.lessonRepo.getHistory(lessonId);
+		return this.lessonQueryRepo.getHistory(lessonId);
 	}
 }

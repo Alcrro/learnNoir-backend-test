@@ -1,9 +1,4 @@
 import type { LessonEntity } from "../entities/Lesson";
-import type {
-	TeacherLessonDTO,
-	TeacherStatsDTO,
-	TeacherStudentDTO,
-} from "../../application/dto/TeacherLessons.dto";
 
 export type LessonEditChange = { field: string; from: string; to: string };
 
@@ -29,10 +24,5 @@ export interface ILessonRepository {
 	listByModuleId(moduleId: string): Promise<LessonEntity[]>;
 	listByModuleSlug(slug: string): Promise<LessonEntity[]>;
 
-	listByTeacher(teacherId: string): Promise<TeacherLessonDTO[]>;
-	getTeacherStats(teacherId: string): Promise<TeacherStatsDTO>;
-	getTeacherStudents(teacherId: string): Promise<TeacherStudentDTO[]>;
-
 	logEdit(lessonId: string, editorId: string, changes: LessonEditChange[]): Promise<void>;
-	getHistory(lessonId: string): Promise<LessonEditEntry[]>;
 }

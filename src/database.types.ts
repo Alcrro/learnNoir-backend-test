@@ -148,8 +148,102 @@ export type Database = {
         }
         Relationships: []
       }
+      exercises: {
+        Row: {
+          id: string
+          lesson_id: string
+          algorithm_id: string
+          title: string
+          difficulty: "easy" | "medium" | "hard"
+          description: string
+          examples: unknown
+          constraints: unknown
+          hints: unknown
+          starter_code: string
+          test_cases: unknown
+          tags: string[]
+          position: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          lesson_id: string
+          algorithm_id: string
+          title: string
+          difficulty: "easy" | "medium" | "hard"
+          description: string
+          examples: unknown
+          constraints: unknown
+          hints: unknown
+          starter_code: string
+          test_cases: unknown
+          tags?: string[]
+          position: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          lesson_id?: string
+          algorithm_id?: string
+          title?: string
+          difficulty?: "easy" | "medium" | "hard"
+          description?: string
+          examples?: unknown
+          constraints?: unknown
+          hints?: unknown
+          starter_code?: string
+          test_cases?: unknown
+          tags?: string[]
+          position?: number
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      exercise_attempts: {
+        Row: {
+          id: string
+          user_id: string
+          exercise_id: string
+          code: string
+          status: "passed" | "failed" | "error"
+          passed_tests: number
+          total_tests: number
+          hints_used: number
+          score: number
+          execution_time_ms: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          exercise_id: string
+          code: string
+          status: "passed" | "failed" | "error"
+          passed_tests: number
+          total_tests: number
+          hints_used?: number
+          score: number
+          execution_time_ms?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          exercise_id?: string
+          code?: string
+          status?: "passed" | "failed" | "error"
+          passed_tests?: number
+          total_tests?: number
+          hints_used?: number
+          score?: number
+          execution_time_ms?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
       lesson_activities: {
         Row: {
+          component_type: string | null
           created_at: string | null
           id: string
           lesson_block_id: string | null
@@ -162,6 +256,7 @@ export type Database = {
           weight: number
         }
         Insert: {
+          component_type?: string | null
           created_at?: string | null
           id?: string
           lesson_block_id?: string | null
@@ -174,6 +269,7 @@ export type Database = {
           weight: number
         }
         Update: {
+          component_type?: string | null
           created_at?: string | null
           id?: string
           lesson_block_id?: string | null
@@ -971,6 +1067,54 @@ export type Database = {
           },
         ]
       }
+      quiz_block_scores: {
+        Row: {
+          id: string
+          user_id: string
+          lesson_block_id: string
+          score: number
+          passed: boolean
+          attempts: number
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          lesson_block_id: string
+          score?: number
+          passed?: boolean
+          attempts?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          lesson_block_id?: string
+          score?: number
+          passed?: boolean
+          attempts?: number
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_block_scores_lesson_block_id_fkey"
+            columns: ["lesson_block_id"]
+            isOneToOne: false
+            referencedRelation: "lesson_blocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_block_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subjects: {
         Row: {
           created_at: string | null
@@ -1032,6 +1176,41 @@ export type Database = {
             columns: ["activity_id"]
             isOneToOne: false
             referencedRelation: "lesson_activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          id: string
+          user_id: string
+          plan: string
+          started_at: string
+          expires_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          plan?: string
+          started_at?: string
+          expires_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          plan?: string
+          started_at?: string
+          expires_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

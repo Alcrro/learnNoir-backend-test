@@ -128,6 +128,37 @@ export class UserActivityProgressRepoImpl implements IUserActivityProgressRepo {
 		if (error) throw new Error(error.message);
 	}
 
+	async getCompletedComponents(userId: string, lessonId: string): Promise<string[]> {
+		const { data: activities, error: actErr } = await supabase
+			.from("lesson_activities")
+			.select("id, component_type")
+			.eq("lesson_id", lessonId)
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			.not("component_type" as any, "is", null);
+
+		if (actErr) throw new Error(actErr.message);
+		if (!activities || activities.length === 0) return [];
+
+		const activityIds = activities.map((a) => a.id);
+
+		const { data: progress, error: progErr } = await supabase
+			.from("user_activity_progress")
+			.select("activity_id")
+			.eq("user_id", userId)
+			.in("activity_id", activityIds)
+			.gt("score", 0);
+
+		if (progErr) throw new Error(progErr.message);
+		if (!progress || progress.length === 0) return [];
+
+		const completedIds = new Set(progress.map((p) => p.activity_id));
+		return activities
+			.filter((a) => completedIds.has(a.id))
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			.map((a) => (a as any).component_type as string)
+			.filter(Boolean);
+	}
+
 	async computeWeightedQuizScore(userId: string, lessonId: string): Promise<number> {
 		// Get all quiz+exercise activities for the lesson
 		const { data: activities, error: actErr } = await supabase
@@ -161,6 +192,7 @@ export class UserActivityProgressRepoImpl implements IUserActivityProgressRepo {
 			return sum + (progressMap.get(a.id) ?? 0) * a.weight;
 		}, 0);
 
-		return weightedSum / totalWeight;
+		// Scores in user_activity_progress are 0-1; domain expects 0-100.
+		return (weightedSum / totalWeight) * 100;
 	}
 }

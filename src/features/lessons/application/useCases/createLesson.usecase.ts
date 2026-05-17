@@ -9,6 +9,7 @@ export class CreateLessonUseCase {
 	async execute(lesson: CreateLessonDTO, authorId: string): Promise<LessonDTO> {
 		const newLesson = new Lesson({
 			moduleId: lesson.moduleId,
+			gradeLevelId: lesson.gradeLevelId ?? null,
 			title: lesson.title,
 			slug: this.genSlug(lesson.title),
 			description: lesson.description ?? null,

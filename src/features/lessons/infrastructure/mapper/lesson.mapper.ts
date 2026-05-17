@@ -12,6 +12,7 @@ export class LessonMapper {
 		return new LessonEntity({
 			id: row.id,
 			moduleId: row.module_id,
+			gradeLevelId: row.grade_level_id ?? null,
 			title: row.title,
 			slug: row.slug,
 			description: row.description ?? null,
@@ -31,6 +32,7 @@ export class LessonMapper {
 			title: lesson.title,
 			description: lesson.description ?? null,
 			duration_seconds: lesson.durationSeconds,
+			grade_level_id: lesson.gradeLevelId,
 			position: lesson.position,
 			is_active: lesson.isActive,
 			status: lesson.getStatus(),

@@ -58,6 +58,11 @@ export const env = {
 		| "nova"
 		| "shimmer",
 
+	// ── Stripe ────────────────────────────────────────────────────────────────
+	STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "",
+	STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID ?? "",
+	STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "",
+
 	// ── Redis / Cache ─────────────────────────────────────────────────────────
 	REDIS_URL: process.env.REDIS_URL as string,
 	CACHE_TTL: Number(process.env.CACHE_TTL) || 3600, // seconds, default 1h

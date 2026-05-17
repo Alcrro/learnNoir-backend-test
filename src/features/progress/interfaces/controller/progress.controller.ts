@@ -4,6 +4,8 @@ import type { RequestWithUserId } from "../../../auth/interfaces/controllers/Aut
 import type { GetLessonProgressUseCase } from "../../application/useCases/getLessonProgressUseCase";
 import type { GetUserProgressUseCase } from "../../application/useCases/getUserProgressUseCase";
 import type { UpsertLessonProgressUseCase } from "../../application/useCases/upsertLessonProgressUseCase";
+import type { GetQuizBlockScoresUseCase } from "../../application/useCases/getQuizBlockScoresUseCase";
+import type { UpsertQuizBlockScoreUseCase } from "../../application/useCases/upsertQuizBlockScoreUseCase";
 import type { UpsertProgressInput } from "../../domain/types/LessonProgress.type";
 
 export class ProgressController {
@@ -12,6 +14,8 @@ export class ProgressController {
 			getLessonProgress: GetLessonProgressUseCase;
 			getUserProgress: GetUserProgressUseCase;
 			upsertLessonProgress: UpsertLessonProgressUseCase;
+			getQuizBlockScores: GetQuizBlockScoresUseCase;
+			upsertQuizBlockScore: UpsertQuizBlockScoreUseCase;
 		},
 	) {}
 
@@ -68,6 +72,41 @@ export class ProgressController {
 			);
 
 			return res.status(200).json({ data: progress });
+		},
+	);
+
+	// GET /progress/lesson/:lessonId/quiz-blocks
+	getQuizBlockScores = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const userId = req.userId;
+			const lessonId = readRequiredString(req.params.lessonId, "Lesson id is required");
+
+			if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+			const scores = await this.services.getQuizBlockScores.execute(userId, lessonId);
+			return res.status(200).json({ data: scores });
+		},
+	);
+
+	// POST /progress/lesson/:lessonId/quiz-block/:blockId
+	upsertQuizBlockScore = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const userId = req.userId;
+			const lessonId = readRequiredString(req.params.lessonId, "Lesson id is required");
+			const blockId = readRequiredString(req.params.blockId, "Block id is required");
+
+			if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+			const body = req.body as { score?: unknown };
+			if (typeof body.score !== "number" || body.score < 0 || body.score > 100) {
+				return res.status(400).json({ error: "score must be a number 0-100" });
+			}
+
+			// lessonId is accepted but not needed for the upsert — blockId is the natural key.
+			void lessonId;
+
+			const result = await this.services.upsertQuizBlockScore.execute(userId, blockId, body.score);
+			return res.status(200).json({ data: result });
 		},
 	);
 }

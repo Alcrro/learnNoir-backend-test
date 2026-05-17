@@ -35,3 +35,13 @@ export type UpsertProgressInput = {
 	readScore?: number;
 	outputScore?: number;
 };
+
+// Per-block quiz score (quiz_block_scores table).
+export type QuizBlockScore = {
+	id: string;
+	userId: string;
+	lessonBlockId: string;
+	score: number;
+	passed: boolean;
+	attempts: number;
+};

@@ -2,6 +2,8 @@ import { supabase } from "../../../../core/db/supabaseClient";
 import { GetLessonProgressUseCase } from "../../application/useCases/getLessonProgressUseCase";
 import { GetUserProgressUseCase } from "../../application/useCases/getUserProgressUseCase";
 import { UpsertLessonProgressUseCase } from "../../application/useCases/upsertLessonProgressUseCase";
+import { GetQuizBlockScoresUseCase } from "../../application/useCases/getQuizBlockScoresUseCase";
+import { UpsertQuizBlockScoreUseCase } from "../../application/useCases/upsertQuizBlockScoreUseCase";
 import { ProgressRepoImpl } from "../db/ProgressRepoImpl";
 import { ProgressController } from "../../interfaces/controller/progress.controller";
 
@@ -13,5 +15,7 @@ export function progressControllerFactory(): ProgressController {
 		getLessonProgress: new GetLessonProgressUseCase(progressRepo),
 		getUserProgress: new GetUserProgressUseCase(progressRepo),
 		upsertLessonProgress: new UpsertLessonProgressUseCase(progressRepo),
+		getQuizBlockScores: new GetQuizBlockScoresUseCase(progressRepo),
+		upsertQuizBlockScore: new UpsertQuizBlockScoreUseCase(progressRepo),
 	});
 }

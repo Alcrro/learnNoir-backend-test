@@ -20,6 +20,7 @@ const {
 	getTeacherStats,
 	getTeacherStudents,
 	getLessonHistory,
+	generateBlocksFromText,
 } = lessonControllerFactory();
 
 router.get("", listLessons);
@@ -60,5 +61,6 @@ router.put("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "ad
 router.delete("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), deleteLesson);
 router.patch("/:id/review", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), reviewLesson);
 router.patch("/:id/publish", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), publishLesson);
+router.post("/:id/generate-blocks", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), generateBlocksFromText);
 
 export default router;

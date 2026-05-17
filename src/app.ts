@@ -17,7 +17,11 @@ import subjectsRoutes from "./features/subjects/interfaces/routes/SubjectsRoute.
 import categoriesRoutes from "./features/categories/interfaces/routes/http/CategoriesRouter.route";
 import progressRoutes from "./features/progress/interfaces/routes/progress.routes";
 import lessonAudioRoutes from "./features/lesson-audio/interfaces/routes/lessonAudio.routes";
+import lessonVideoRoutes from "./features/lesson-video/interfaces/routes/lessonVideo.routes";
+import lessonVersionsRoutes from "./features/lesson-versions/interfaces/routes/lessonVersion.routes";
 import lessonTheoryInteractionsRoutes from "./features/lesson-theory-interactions/interfaces/routes/LessonTheoryInteractions.routes";
+import { lessonExercisesRouter, exercisesRouter } from "./features/exercises/interfaces/routes/exercise.routes";
+import subscriptionsRoutes from "./features/subscriptions/interfaces/routes/subscriptions.routes";
 
 // Global error and 404 handlers
 import { errorHandler, notFoundHandler } from "./utils/errors/errorMiddleware";
@@ -69,12 +73,17 @@ app.use("/api/subjects", subjectsRoutes); // Top-level subjects (Computer Scienc
 app.use("/api/categories", categoriesRoutes); // Categories for organising content
 app.use("/api/progress", progressRoutes); // User learning progress
 app.use("/api/lessons", lessonAudioRoutes); // Lesson audio narration (Watch tab)
+app.use("/api/lessons", lessonVideoRoutes); // Lesson video (AI-generated, provider TBD)
+app.use("/api/lessons/:lessonId/versions", lessonVersionsRoutes); // Lesson version history
 app.use(
 	"/api/lessons/:lessonId/theory-interactions",
 	lessonTheoryInteractionsRoutes,
 ); // Theory interaction components (V2 learning layout)
+app.use("/api/lessons/:lessonId/exercises", lessonExercisesRouter); // Coding exercises (LeetCode-style) per lesson
+app.use("/api/exercises", exercisesRouter); // Exercise run/submit endpoints
 app.use("/api/auth", authRoutes); // Login, register, token refresh, logout
 app.use("/api/profiles", profilesRoutes); // User profile management
+app.use("/api/subscriptions", subscriptionsRoutes); // Subscription plan management
 
 // ── Global error handling (must be registered last) ───────────────────────────
 // Return a 404 JSON response for any route that didn't match above
