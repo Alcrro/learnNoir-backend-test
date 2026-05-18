@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LessonEntity } from "../../domain/entities/Lesson";
-import type { ILessonRepository, LessonEditChange } from "../../domain/repositories/LeasonRepository";
+import type { ILessonRepository, LessonEditChange } from "../../domain/repositories/LessonRepository";
 import { LessonMapper } from "../mapper/lesson.mapper";
 import {
 	DatabaseError,

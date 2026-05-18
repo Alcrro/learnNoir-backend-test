@@ -1,3 +1,6 @@
+import { createHash } from "crypto";
+
 export const buildCacheKey = (type: string, input: string): string => {
-	return `${type}:${input.trim().toLowerCase()}`;
+	const hash = createHash("sha256").update(input.trim().toLowerCase()).digest("hex");
+	return `${type}:${hash}`;
 };

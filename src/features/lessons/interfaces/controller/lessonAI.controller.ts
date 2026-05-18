@@ -89,8 +89,6 @@ export const generateLessonMetadata = asyncHandlerMiddleware(
 			title.trim(),
 			(moduleName ?? "General").trim(),
 		);
-		console.log(result);
-
 		return res.status(200).json({ data: result });
 	},
 );

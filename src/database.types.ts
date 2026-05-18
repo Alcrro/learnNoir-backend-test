@@ -1180,6 +1180,109 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          id: string
+          name: string
+          owner_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          owner_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          owner_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organizations_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          id: string
+          org_id: string
+          user_id: string
+          role: string
+          joined_at: string
+        }
+        Insert: {
+          id?: string
+          org_id: string
+          user_id: string
+          role?: string
+          joined_at?: string
+        }
+        Update: {
+          id?: string
+          org_id?: string
+          user_id?: string
+          role?: string
+          joined_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_subscriptions: {
+        Row: {
+          id: string
+          org_id: string
+          plan: string
+          started_at: string
+          expires_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          org_id: string
+          plan?: string
+          started_at?: string
+          expires_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          org_id?: string
+          plan?: string
+          started_at?: string
+          expires_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_subscriptions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           id: string

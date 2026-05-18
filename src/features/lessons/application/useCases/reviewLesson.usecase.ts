@@ -1,4 +1,4 @@
-import type { ILessonRepository } from "../../domain/repositories/LeasonRepository";
+import type { ILessonRepository } from "../../domain/repositories/LessonRepository";
 import type { role } from "../../../profiles/application/dto/ProfileDTO.type";
 import { ForbiddenError } from "../../../../utils/errors/DatabaseError";
 

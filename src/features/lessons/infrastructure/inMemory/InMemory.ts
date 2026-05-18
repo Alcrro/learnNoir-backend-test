@@ -1,6 +1,6 @@
 import { algorithmDocMapper } from "../../../../data/programming/algorithms";
 import type { Lesson } from "../../domain/entities/Lesson";
-import type { ILessonRepository } from "../../domain/repositories/LeasonRepository";
+import type { ILessonRepository } from "../../domain/repositories/LessonRepository";
 import type {
 	TeacherLessonDTO,
 	TeacherStatsDTO,
@@ -48,10 +48,10 @@ export class InMemoryImpl implements ILessonRepository {
 	publish(_id: string): Promise<void> {
 		throw new Error("Method not implemented.");
 	}
-	logEdit(_lessonId: string, _editorId: string, _changes: import("../../domain/repositories/LeasonRepository").LessonEditChange[]): Promise<void> {
+	logEdit(_lessonId: string, _editorId: string, _changes: import("../../domain/repositories/LessonRepository").LessonEditChange[]): Promise<void> {
 		return Promise.resolve();
 	}
-	getHistory(_lessonId: string): Promise<import("../../domain/repositories/LeasonRepository").LessonEditEntry[]> {
+	getHistory(_lessonId: string): Promise<import("../../domain/repositories/LessonRepository").LessonEditEntry[]> {
 		return Promise.resolve([]);
 	}
 }

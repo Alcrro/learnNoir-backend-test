@@ -1,5 +1,5 @@
 import { DatabaseError } from "../../../../utils/errors/DatabaseError";
-import type { ILessonRepository } from "../../../lessons/domain/repositories/LeasonRepository";
+import type { ILessonRepository } from "../../../lessons/domain/repositories/LessonRepository";
 import type { CreateLessonBlockDTO } from "../dto/LessonBlock.dto";
 import type { LessonBlockFactory } from "../../domain/factories/lessonBlock.factory";
 import type { LessonBlockRepository } from "../../domain/repositories/LessonBlockRepository";
@@ -29,7 +29,6 @@ export class CreateLessonBlockUseCase {
 			...lessonBlock,
 			position: creationPosition,
 		});
-		console.log(createdLessonBlock);
 		if (!createdLessonBlock) {
 			throw new BadRequestError("Invalid lesson block payload");
 		}

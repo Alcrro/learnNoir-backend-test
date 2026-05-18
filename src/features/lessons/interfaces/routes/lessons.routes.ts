@@ -2,6 +2,12 @@ import { Router } from "express";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware";
 import { lessonControllerFactory } from "../../infrastructure/factories/lessonControllerFactory";
 import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware";
+import { validateInput } from "../../../../utils/validateInputMiddleware";
+import {
+	CreateLessonSchema,
+	UpdateLessonSchema,
+	GenerateBlocksSchema,
+} from "../../application/dto/lesson.schema";
 
 const router = Router();
 
@@ -54,13 +60,14 @@ router.post(
 	"",
 	requireAuthMiddleware,
 	roleRequiredMiddleware(["admin", "teacher"]),
+	validateInput(CreateLessonSchema),
 	createLesson,
 );
 router.get("/:id/history", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), getLessonHistory);
-router.put("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), updateLesson);
+router.put("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), validateInput(UpdateLessonSchema), updateLesson);
 router.delete("/:id", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), deleteLesson);
 router.patch("/:id/review", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), reviewLesson);
 router.patch("/:id/publish", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), publishLesson);
-router.post("/:id/generate-blocks", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), generateBlocksFromText);
+router.post("/:id/generate-blocks", requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"]), validateInput(GenerateBlocksSchema), generateBlocksFromText);
 
 export default router;

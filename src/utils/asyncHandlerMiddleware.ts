@@ -4,7 +4,7 @@ type AsyncHandler = (
 	req: Request,
 	res: Response,
 	next: NextFunction,
-) => Promise<any>;
+) => Promise<unknown>;
 
 //cath reutilizble trycath to not do every time on each function
 export const asyncHandlerMiddleware = (fn: AsyncHandler) => {

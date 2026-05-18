@@ -1,6 +1,6 @@
 import { DatabaseError } from "../../../../utils/errors/DatabaseError.ts";
 import { BadRequestError } from "../../../../utils/errors/DatabaseError.ts";
-import type { ILessonRepository } from "../../../lessons/domain/repositories/LeasonRepository.ts";
+import type { ILessonRepository } from "../../../lessons/domain/repositories/LessonRepository.ts";
 import { LessonActivityEntity } from "../../domain/entities/LessonActivityEntity.ts";
 import type { LessonActivityRepository } from "../../domain/repositories/LessonActivityRepository.ts";
 import type { LessonActivity } from "../../domain/types/LessonActivity.type.ts";

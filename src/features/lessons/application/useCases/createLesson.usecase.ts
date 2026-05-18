@@ -1,5 +1,5 @@
 import { Lesson } from "../../domain/entities/Lesson";
-import type { ILessonRepository } from "../../domain/repositories/LeasonRepository";
+import type { ILessonRepository } from "../../domain/repositories/LessonRepository";
 import { mapToDto } from "../dto/LessonDTO.dto";
 import type { CreateLessonDTO, LessonDTO } from "../dto/LessonType.type";
 

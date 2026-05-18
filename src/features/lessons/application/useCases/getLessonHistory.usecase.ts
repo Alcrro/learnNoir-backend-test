@@ -1,5 +1,5 @@
 import type { ILessonQueryRepository } from "../repositories/ILessonQueryRepository.ts";
-import type { LessonEditEntry } from "../../domain/repositories/LeasonRepository";
+import type { LessonEditEntry } from "../../domain/repositories/LessonRepository";
 
 export class GetLessonHistoryUseCase {
 	constructor(private readonly lessonQueryRepo: ILessonQueryRepository) {}

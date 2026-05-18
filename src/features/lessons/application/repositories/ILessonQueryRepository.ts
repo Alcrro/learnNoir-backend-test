@@ -1,4 +1,4 @@
-import type { LessonEditEntry } from "../../domain/repositories/LeasonRepository.ts";
+import type { LessonEditEntry } from "../../domain/repositories/LessonRepository.ts";
 import type {
 	TeacherLessonDTO,
 	TeacherStatsDTO,

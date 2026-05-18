@@ -35,6 +35,27 @@ export class StripeService {
 		return session.url!;
 	}
 
+	async createOrgCheckoutSession(params: {
+		orgId: string;
+		userEmail?: string;
+		successUrl: string;
+		cancelUrl: string;
+	}): Promise<string> {
+		const session = await this.stripe.checkout.sessions.create({
+			mode: "subscription",
+			line_items: [{ price: env.STRIPE_PRICE_ID, quantity: 1 }],
+			...(params.userEmail ? { customer_email: params.userEmail } : {}),
+			success_url: params.successUrl,
+			cancel_url: params.cancelUrl,
+			metadata: { orgId: params.orgId },
+			subscription_data: {
+				metadata: { orgId: params.orgId },
+			},
+		});
+
+		return session.url!;
+	}
+
 	constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
 		return this.stripe.webhooks.constructEvent(
 			payload,

@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { env } from "../../../../config/env";
 import { RegisterUserUseCase } from "../../application/useCases/registerUser.usecase";
-import { AuthWithCredetials } from "../../application/useCases/authWithCredentials.usecase";
+import { AuthWithCredentials } from "../../application/useCases/authWithCredentials.usecase";
 import type { role } from "../../../profiles/application/dto/ProfileDTO.type";
 
 export type RequestWithUserId = Request & { userId?: string; userRole?: role };
@@ -9,7 +9,7 @@ export class AuthController {
 	constructor(
 		private readonly authServices: {
 			registerUseCase: RegisterUserUseCase;
-			authUseCase: AuthWithCredetials;
+			authUseCase: AuthWithCredentials;
 		},
 	) {}
 
@@ -45,15 +45,18 @@ export class AuthController {
 			httpOnly: true,
 			secure: isProd,
 			sameSite: isProd ? "none" : "strict",
+			maxAge: 60 * 60 * 1000, // 1 oră — egal cu expiry-ul Supabase access token
 		});
 
 		res.cookie("refreshToken", loginUser.refreshToken, {
 			httpOnly: true,
 			secure: isProd,
 			sameSite: isProd ? "none" : "strict",
+			maxAge: 7 * 24 * 60 * 60 * 1000, // 7 zile — refresh token Supabase default
 		});
 
-		return res.status(201).json({ success: true, data: loginUser });
+		const { accessToken: _at, refreshToken: _rt, ...safeData } = loginUser;
+		return res.status(201).json({ success: true, data: safeData });
 	};
 
 	getCurrentUser = async (req: RequestWithUserId, res: Response) => {

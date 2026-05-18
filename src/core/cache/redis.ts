@@ -1,5 +1,6 @@
 import Redis from "ioredis";
-import { env } from "../../config/env";
+import { env } from "../../config/env.js";
+import { logger } from "../logger.js";
 
 export const redis = new Redis(env.REDIS_URL!, {
 	retryStrategy(times) {
@@ -7,13 +8,7 @@ export const redis = new Redis(env.REDIS_URL!, {
 		return 500;
 	},
 });
-redis.on("connect", () => {
-	console.log("Redis connected");
-});
 
-redis.on("ready", () => {
-	console.log("Redis ready");
-});
-redis.on("error", (err) => {
-	console.error("Redis error:", err);
-});
+redis.on("connect", () => logger.info("Redis connected"));
+redis.on("ready", () => logger.info("Redis ready"));
+redis.on("error", (err) => logger.error({ err }, "Redis error"));

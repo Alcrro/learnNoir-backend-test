@@ -1,5 +1,5 @@
 import { Lesson } from "../../domain/entities/Lesson";
-import type { ILessonRepository, LessonEditChange } from "../../domain/repositories/LeasonRepository";
+import type { ILessonRepository, LessonEditChange } from "../../domain/repositories/LessonRepository";
 import { mapToDto } from "../dto/LessonDTO.dto";
 import type { LessonDTO, UpdateLessonDTO } from "../dto/LessonType.type";
 import type { role } from "../../../profiles/application/dto/ProfileDTO.type";

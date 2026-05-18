@@ -1,5 +1,6 @@
 import type OpenAI from "openai";
 import type { Category } from "../../types";
+import { logger } from "../../core/logger.js";
 
 export class Classifier {
 	constructor(private client: OpenAI) {
@@ -39,7 +40,7 @@ ${prompt}`,
 
 			return json.category;
 		} catch (error) {
-			console.error("Error classifying input:", error);
+			logger.error({ error }, "Error classifying input");
 			throw error;
 		}
 	}

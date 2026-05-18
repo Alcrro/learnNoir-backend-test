@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import type { GetActiveSubscriptionUseCase } from "../../application/useCases/GetActiveSubscription.usecase.ts";
 import type { UpsertSubscriptionUseCase } from "../../application/useCases/UpsertSubscription.usecase.ts";
+import type { UpsertOrgSubscriptionUseCase } from "../../application/useCases/UpsertOrgSubscription.usecase.ts";
 import type { CreateCheckoutSessionUseCase } from "../../application/useCases/CreateCheckoutSession.usecase.ts";
 import type { StripeService } from "../../infrastructure/stripe/StripeService.ts";
 import { env } from "../../../../config/env.ts";
@@ -11,6 +12,7 @@ export class SubscriptionController {
 	constructor(
 		private readonly getActiveSubscription: GetActiveSubscriptionUseCase,
 		private readonly upsertSubscription: UpsertSubscriptionUseCase,
+		private readonly upsertOrgSubscription: UpsertOrgSubscriptionUseCase,
 		private readonly createCheckoutSession: CreateCheckoutSessionUseCase,
 		private readonly stripeService: StripeService,
 	) {}
@@ -79,10 +81,17 @@ export class SubscriptionController {
 		}
 
 		if (event.type === "checkout.session.completed") {
-			const session = event.data.object as { client_reference_id?: string };
+			const session = event.data.object as {
+				client_reference_id?: string;
+				metadata?: Record<string, string>;
+			};
+
+			const orgId = session.metadata?.["orgId"];
 			const userId = session.client_reference_id;
 
-			if (userId) {
+			if (orgId) {
+				await this.upsertOrgSubscription.execute(orgId, "pro");
+			} else if (userId) {
 				await this.upsertSubscription.execute(userId, "pro");
 			}
 		}

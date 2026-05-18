@@ -1,7 +1,7 @@
 import type { IAuthRepository } from "../repositories/auth.interfaces";
 import { AuthDTO, type UserAuthDTO } from "../dto/Auth.dto";
 
-export class AuthWithCredetials {
+export class AuthWithCredentials {
 	constructor(private readonly authRepo: IAuthRepository) {}
 
 	async execute(email: string, password: string): Promise<UserAuthDTO> {

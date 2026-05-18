@@ -1,7 +1,7 @@
 import { supabase } from "../../core/db/supabaseClient";
 import { supabaseAuth } from "../../core/db/supabaseAuthClient";
 import { ProfileRepoImpl } from "../profiles/infrastructures/db/ProfilesRepoImpl";
-import { AuthWithCredetials } from "./application/useCases/authWithCredentials.usecase";
+import { AuthWithCredentials } from "./application/useCases/authWithCredentials.usecase";
 import { RegisterUserUseCase } from "./application/useCases/registerUser.usecase";
 import { AuthRepositoryImpl } from "./infrastructure/db/AuthRepositoryImpl";
 import { AuthController } from "./interfaces/controllers/Auth.controller";
@@ -14,7 +14,7 @@ export function authControllerFactory() {
 
 	const authService = {
 		registerUseCase: new RegisterUserUseCase(authRepoImpl, registerRepoImpl),
-		authUseCase: new AuthWithCredetials(authRepoImpl),
+		authUseCase: new AuthWithCredentials(authRepoImpl),
 	};
 	return new AuthController(authService);
 }

@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { supabase } from "../core/db/supabaseClient.ts";
 import { SubscriptionRepoImpl } from "../features/subscriptions/infrastructure/db/SubscriptionRepoImpl.ts";
+import { OrganizationSubscriptionRepoImpl } from "../features/subscriptions/infrastructure/db/OrganizationSubscriptionRepoImpl.ts";
 import { GetActiveSubscriptionUseCase } from "../features/subscriptions/application/useCases/GetActiveSubscription.usecase.ts";
 
 export const requireProMiddleware = async (
@@ -16,7 +17,8 @@ export const requireProMiddleware = async (
 	}
 
 	const repo = new SubscriptionRepoImpl(supabase);
-	const useCase = new GetActiveSubscriptionUseCase(repo);
+	const orgSubRepo = new OrganizationSubscriptionRepoImpl(supabase);
+	const useCase = new GetActiveSubscriptionUseCase(repo, orgSubRepo);
 	const plan = await useCase.execute(userId);
 
 	if (plan !== "pro") {

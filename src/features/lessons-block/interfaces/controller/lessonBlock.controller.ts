@@ -85,11 +85,7 @@ export class LessonBlockController {
 				throw new AppError("Lesson block payload is required", 400);
 			}
 
-			console.log(req.body);
-
 			const payload = parseCreateLessonBlockDTO(req.body);
-
-			console.log(payload);
 
 			const createdLessonBlock =
 				await this.lessonBlockServices.createLessonBlock.execute(payload);

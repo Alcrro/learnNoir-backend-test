@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../../../database.types";
 import { DatabaseError } from "../../../../utils/errors/DatabaseError";
 import type { ILessonQueryRepository } from "../../application/repositories/ILessonQueryRepository.ts";
-import type { LessonEditChange, LessonEditEntry } from "../../domain/repositories/LeasonRepository.ts";
+import type { LessonEditChange, LessonEditEntry } from "../../domain/repositories/LessonRepository.ts";
 import type {
 	TeacherLessonDTO,
 	TeacherStatsDTO,

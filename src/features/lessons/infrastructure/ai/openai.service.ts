@@ -1,17 +1,23 @@
 import OpenAI from "openai";
-import { env } from "../../../../config/env";
-import { buildCacheKey } from "../../../../utils/cacheKey";
-import { selectPolicy } from "../../../../utils/selectPlicy";
-import type { CacheService } from "../cache/cache.service";
+import { env } from "../../../../config/env.js";
+import { buildCacheKey } from "../../../../utils/cacheKey.js";
+import { selectPolicy } from "../../../../utils/selectPlicy.js";
+import type { CacheService } from "../cache/cache.service.js";
+import { logger } from "../../../../core/logger.js";
+
+const OPENAI_TIMEOUT_MS = 30_000;
+const MAX_RETRIES = 2;
 
 export class OpenAIService {
 	private openai: OpenAI;
+
 	constructor(private cacheService: CacheService) {
 		this.openai = new OpenAI({
 			apiKey: env.OPENAI_API_KEY,
+			timeout: OPENAI_TIMEOUT_MS,
+			maxRetries: MAX_RETRIES,
 		});
 	}
-	// Initialize any necessary properties or configurations here
 
 	async generate(type: string, prompt: string) {
 		const policy = selectPolicy(prompt);
@@ -21,14 +27,12 @@ export class OpenAIService {
 			throw new Error("Input does not meet the policy requirements.");
 		}
 
-		try {
-			// Check cache first
-			const cached = await this.cacheService.get(key);
-			if (cached) {
-				return { data: cached, source: "cache" };
-			}
+		const cached = await this.cacheService.get(key);
+		if (cached) {
+			return { data: cached, source: "cache" };
+		}
 
-			// Generate response from OpenAI
+		try {
 			const response = await this.openai.chat.completions.create({
 				model: env.OPENAI_FAST_MODEL,
 				max_completion_tokens: 1500,
@@ -39,34 +43,25 @@ export class OpenAIService {
 				],
 			});
 
-			// Verify response structure
 			if (!response.choices[0] || response.choices.length === 0) {
 				throw new Error("No choices returned");
 			}
 
 			const choice = response.choices[0];
 
-			// Verify message content
-			if (!choice.message || !choice.message.content) {
+			if (!choice.message?.content) {
 				throw new Error("Invalid response structure");
 			}
 
-			//output validation
-			if (
-				policy.validateOutput &&
-				!policy.validateOutput(choice.message.content)
-			) {
+			if (policy.validateOutput && !policy.validateOutput(choice.message.content)) {
 				throw new Error("Output does not meet the policy requirements.");
 			}
 
-			const result = choice.message.content;
-
-			// Cache the result
-			await this.cacheService.set(key, result, env.CACHE_TTL);
+			await this.cacheService.set(key, choice.message.content, env.CACHE_TTL);
 
 			return { data: choice.message.content, source: "openai" };
 		} catch (error) {
-			console.error("Error generating response from OpenAI:", error);
+			logger.error({ error }, "OpenAI generation failed");
 			throw error;
 		}
 	}

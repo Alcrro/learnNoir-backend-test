@@ -33,9 +33,10 @@ lessonExercisesRouter.get(
 // Router for exercise-scoped routes: /api/exercises/:exerciseId/...
 export const exercisesRouter = Router({ mergeParams: true });
 
-// POST /api/exercises/:exerciseId/run
+// POST /api/exercises/:exerciseId/run — requires auth to prevent compute abuse
 exercisesRouter.post(
 	"/:exerciseId/run",
+	requireAuthMiddleware,
 	asyncHandlerMiddleware(controller.runCode),
 );
 

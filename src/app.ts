@@ -5,7 +5,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 // Feature route modules
-import openaiRoutes from "./features/lessons/interfaces/routes/openai.routes";
 import lessonAIRoutes from "./features/lessons/interfaces/routes/lessonAI.routes";
 import lessonsRoutes from "./features/lessons/interfaces/routes/lessons.routes";
 import lessonsBlockRoutes from "./features/lessons-block/interfaces/routes/lessonBlock.routes";
@@ -22,6 +21,7 @@ import lessonVersionsRoutes from "./features/lesson-versions/interfaces/routes/l
 import lessonTheoryInteractionsRoutes from "./features/lesson-theory-interactions/interfaces/routes/LessonTheoryInteractions.routes";
 import { lessonExercisesRouter, exercisesRouter } from "./features/exercises/interfaces/routes/exercise.routes";
 import subscriptionsRoutes from "./features/subscriptions/interfaces/routes/subscriptions.routes";
+import organizationsRoutes from "./features/organizations/interfaces/routes/organizations.routes";
 
 // Global error and 404 handlers
 import { errorHandler, notFoundHandler } from "./utils/errors/errorMiddleware";
@@ -62,8 +62,10 @@ app.use(cookieParser());
 // Parse JSON bodies and expose them as req.body on POST/PUT/PATCH requests
 app.use(express.json());
 
+// ── Health check (ECS / load balancer) ────────────────────────────────────────
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
+
 // ── Feature routes ─────────────────────────────────────────────────────────────
-app.use("/api/openai", openaiRoutes); // AI-powered lesson generation
 app.use("/api/lessons/ai", lessonAIRoutes); // AI assistant for lesson editing (teacher-only)
 app.use("/api/lessons", lessonsRoutes); // Lesson CRUD
 app.use("/api/lessons-block", lessonsBlockRoutes); // Lesson block content (content / interactive / assessment)
@@ -84,6 +86,7 @@ app.use("/api/exercises", exercisesRouter); // Exercise run/submit endpoints
 app.use("/api/auth", authRoutes); // Login, register, token refresh, logout
 app.use("/api/profiles", profilesRoutes); // User profile management
 app.use("/api/subscriptions", subscriptionsRoutes); // Subscription plan management
+app.use("/api/organizations", organizationsRoutes); // Organization management and org-level subscriptions
 
 // ── Global error handling (must be registered last) ───────────────────────────
 // Return a 404 JSON response for any route that didn't match above
