@@ -46,12 +46,13 @@ describe("LessonBlockFactory", () => {
 
 	it("aruncă BadRequestError pentru type necunoscut", () => {
 		expect(() =>
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			factory.create({
-				type: "unknown" as never,
+				type: "unknown",
 				lessonId,
 				position: 0,
 				data: {},
-			}),
+			} as any),
 		).toThrow(BadRequestError);
 	});
 

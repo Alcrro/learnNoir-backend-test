@@ -25,7 +25,7 @@ export class CategoriesRepoImpl implements CategoriesRepository {
 
 		return CategorieMapper.toDomain(data);
 	}
-	findBySubjectId(subjectId: string): Promise<CategoryEntity[]> {
+	findBySubjectId(_subjectId: string): Promise<CategoryEntity[]> {
 		throw new Error("Method not implemented.");
 	}
 	async create(category: CategoryEntity): Promise<void> {
@@ -35,10 +35,10 @@ export class CategoriesRepoImpl implements CategoriesRepository {
 
 		if (error) throw new DatabaseError(error.message);
 	}
-	update(category: CategoryEntity): Promise<void> {
+	update(_category: CategoryEntity): Promise<void> {
 		throw new Error("Method not implemented.");
 	}
-	delete(id: string): Promise<void> {
+	delete(_id: string): Promise<void> {
 		throw new Error("Method not implemented.");
 	}
 }

@@ -12,9 +12,9 @@ export class Classifier {
 			const response = await this.client.responses.create({
 				model: "gpt-4.1-mini",
 				max_output_tokens: 20,
-				response_format: {
-					type: "json_schema",
-					json_schema: {
+				text: {
+					format: {
+						type: "json_schema",
 						name: "classification",
 						schema: {
 							type: "object",

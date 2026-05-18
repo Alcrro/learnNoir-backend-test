@@ -49,7 +49,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
 		if (!data) throw new AppError("User not found");
 	}
 
-	loginWithOAuth(provider: OAuthProvider): Promise<void> {
+	loginWithOAuth(_provider: OAuthProvider): Promise<void> {
 		throw new AppError("Method not implemented.");
 	}
 

@@ -1,10 +1,3 @@
-export type CategoryQueryDTO = {
-	name: string;
-	slug: string;
-	subjectId: string;
-	modulesCount: number;
-	lessonsCount: number;
-	totalHours: number;
-};
+import type { SubjectCardDTO } from "../../../subjects/application/dto/subjectCardDto";
 
-export type CategoryQueryDTOOutput = CategoryQueryDTO[];
+export type CategoryQueryDTOOutput = SubjectCardDTO[];

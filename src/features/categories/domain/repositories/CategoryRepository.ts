@@ -1,4 +1,4 @@
-import type { Category } from "../entities/CategoriesEntitity";
+import type { CategoryEntity as Category } from "../entities/CategoriesEntitity";
 
 export interface CategoriesRepository {
 	findById(id: string): Promise<Category | null>;

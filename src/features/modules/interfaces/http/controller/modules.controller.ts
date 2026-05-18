@@ -17,7 +17,7 @@ export class ModulesController {
 		res.status(201).json({ message: "Module created successfully" });
 	});
 
-	getAll = asyncHandlerMiddleware(async (req: Request, res: Response) => {
+	getAll = asyncHandlerMiddleware(async (_req: Request, res: Response) => {
 		const result = await this.modulesServices.getAllModulesUsecase.execute();
 
 		res.status(200).json({ success: true, data: result });

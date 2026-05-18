@@ -22,7 +22,7 @@ export class CategoriesController {
 	});
 
 	getAllCategoriesQuery = asyncHandlerMiddleware(
-		async (req: Request, res: Response) => {
+		async (_req: Request, res: Response) => {
 			const result = await this.categoriesServices.getAllCategoriesQuery.execute();
 
 			res.status(202).json({ success: true, data: result });

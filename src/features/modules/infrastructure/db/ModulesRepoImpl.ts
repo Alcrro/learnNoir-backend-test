@@ -43,10 +43,10 @@ export class ModulesRepoImpl implements ModulesRepository {
 
 		return data.map(ModulesMapper.toDomain);
 	}
-	update(id: string, module: ModulesEntity): Promise<ModulesEntity> {
+	update(_id: string, _module: ModulesEntity): Promise<ModulesEntity> {
 		throw new Error("Method not implemented.");
 	}
-	delete(id: string): Promise<void> {
+	delete(_id: string): Promise<void> {
 		throw new Error("Method not implemented.");
 	}
 }

@@ -1,4 +1,4 @@
-import { ZodError, type ZodSchema } from "zod";
+import type { ZodSchema } from "zod";
 import type { NextFunction, Request, Response } from "express";
 
 export const validateInput =
@@ -14,5 +14,5 @@ export const validateInput =
 			});
 		}
 		req.body = result.data;
-		next();
+		return next();
 	};

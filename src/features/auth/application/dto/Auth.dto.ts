@@ -1,4 +1,3 @@
-import type { role } from "../../../profiles/application/dto/ProfileDTO.type";
 import type { AuthResult } from "./Auth.type";
 
 export type UserAuthDTO = {

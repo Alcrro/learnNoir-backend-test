@@ -1,6 +1,5 @@
 import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import type { AuthResult, AuthSession } from "../../application/dto/Auth.type";
-import type { role } from "../../../profiles/application/dto/ProfileDTO.type";
 
 export class AuthRepoImplMapper {
 	static authRepoResultImplMapper(user: SupabaseUser): AuthResult {

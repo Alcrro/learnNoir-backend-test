@@ -69,7 +69,7 @@ export class AuthController {
 		return res.status(200).json({ success: true, data: { userId } });
 	};
 
-	logout = async (req: Request, res: Response) => {
+	logout = async (_req: Request, res: Response) => {
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
