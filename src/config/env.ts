@@ -67,4 +67,8 @@ export const env = {
 	REDIS_URL: process.env.REDIS_URL as string,
 	CACHE_TTL: Number(process.env.CACHE_TTL) || 3600, // seconds, default 1h
 	ALGORITHM_DOC_CACHE_TTL: Number(process.env.ALGORITHM_DOC_CACHE_TTL) || 86400, // seconds, default 24h
+
+	// ── Sentry ────────────────────────────────────────────────────────────────
+	// Optional — leave unset in local dev. Set in ECS task definition for prod.
+	SENTRY_DSN: process.env.SENTRY_DSN,
 } as const;

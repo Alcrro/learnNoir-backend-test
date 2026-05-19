@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { createLessonTheoryInteractionsController } from "../../infrastructure/factories/LessonTheoryInteractionsFactory.ts";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware.ts";
+import { requireProMiddleware } from "../../../../utils/requireProMiddleware.ts";
 import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware.ts";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware.ts";
 
@@ -12,6 +13,7 @@ const controller = createLessonTheoryInteractionsController();
 router.get(
 	"/",
 	requireAuthMiddleware,
+	requireProMiddleware,
 	asyncHandlerMiddleware(controller.getApproved),
 );
 
@@ -100,6 +102,7 @@ router.delete(
 router.post(
 	"/engage",
 	requireAuthMiddleware,
+	requireProMiddleware,
 	asyncHandlerMiddleware(controller.engageComponent),
 );
 
@@ -108,6 +111,7 @@ router.post(
 router.post(
 	"/:interactionId/attempt",
 	requireAuthMiddleware,
+	requireProMiddleware,
 	asyncHandlerMiddleware(controller.recordAttempt),
 );
 

@@ -45,14 +45,9 @@ describe("LessonBlockFactory", () => {
 	});
 
 	it("aruncă BadRequestError pentru type necunoscut", () => {
+		const invalidInput = { type: "unknown", lessonId, position: 0, data: {} };
 		expect(() =>
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			factory.create({
-				type: "unknown",
-				lessonId,
-				position: 0,
-				data: {},
-			} as any),
+			factory.create(invalidInput as unknown as Parameters<typeof factory.create>[0]),
 		).toThrow(BadRequestError);
 	});
 

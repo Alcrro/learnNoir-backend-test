@@ -8,14 +8,16 @@
 		"test:watch": "vitest",
 		"dev": "NODE_ENV=development tsx watch src/server.ts",
 		"start": "NODE_ENV=production tsx src/server.ts",
+		"build": "esbuild src/server.ts --bundle --platform=node --target=node20 --format=esm --outfile=dist/server.js --packages=external",
 		"typecheck": "tsc --noEmit",
-		"lint": "echo \"No ESLint config — add one to enable linting\""
+		"lint": "eslint src --max-warnings 0"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"type": "module",
 	"dependencies": {
+		"@sentry/node": "^10.53.1",
 		"@supabase/supabase-js": "^2.100.0",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.6",
@@ -43,6 +45,10 @@
 		"@types/express": "^5.0.6",
 		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^25.5.0",
+		"@typescript-eslint/eslint-plugin": "^8.59.4",
+		"@typescript-eslint/parser": "^8.59.4",
+		"esbuild": "^0.28.0",
+		"eslint": "^10.4.0",
 		"ts-node-dev": "^2.0.0",
 		"typescript": "^5.9.3",
 		"vitest": "^4.1.6"

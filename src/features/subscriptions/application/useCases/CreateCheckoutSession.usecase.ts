@@ -1,7 +1,7 @@
-import type { StripeService } from "../../infrastructure/stripe/StripeService.ts";
+import type { IStripeService } from "../../infrastructure/stripe/IStripeService.ts";
 
 export class CreateCheckoutSessionUseCase {
-	constructor(private readonly stripeService: StripeService) {}
+	constructor(private readonly stripeService: IStripeService) {}
 
 	async execute(params: {
 		userId: string;

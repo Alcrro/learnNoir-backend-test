@@ -25,6 +25,7 @@ import organizationsRoutes from "./features/organizations/interfaces/routes/orga
 
 // Global error and 404 handlers
 import { errorHandler, notFoundHandler } from "./utils/errors/errorMiddleware";
+import { setupExpressErrorHandler } from "@sentry/node";
 
 // Central env config — all process.env access goes through here
 import { env } from "./config/env";
@@ -91,6 +92,9 @@ app.use("/api/organizations", organizationsRoutes); // Organization management a
 // ── Global error handling (must be registered last) ───────────────────────────
 // Return a 404 JSON response for any route that didn't match above
 app.use(notFoundHandler);
+
+// Capture thrown errors in Sentry before our formatter runs (no-op if DSN not set)
+setupExpressErrorHandler(app);
 
 // Catch errors thrown by any route handler and return a structured error response
 app.use(errorHandler);

@@ -1,7 +1,8 @@
 import Stripe from "stripe";
 import { env } from "../../../../config/env.ts";
+import type { IStripeService } from "./IStripeService.ts";
 
-export class StripeService {
+export class StripeService implements IStripeService {
 	private _stripe: Stripe | null = null;
 
 	private get stripe(): Stripe {

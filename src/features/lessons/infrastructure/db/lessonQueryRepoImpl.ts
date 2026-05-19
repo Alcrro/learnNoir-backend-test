@@ -14,6 +14,7 @@ type ProgressRow = {
 	user_id: string;
 	status: string;
 	weighted_score: number;
+	last_activity_at?: string | null;
 };
 
 function buildProgressStatsMap(rows: ProgressRow[]) {
@@ -41,71 +42,20 @@ export class LessonQueryRepositoryImpl implements ILessonQueryRepository {
 	constructor(private readonly db: SupabaseClient<Database>) {}
 
 	async listByTeacher(teacherId: string): Promise<TeacherLessonDTO[]> {
-		const lessonIds = await this.getTeacherLessonIds(teacherId);
-		if (lessonIds.length === 0) return [];
-
-		const { data: lessonsData, error: lessonsError } = await this.db
-			.from("lessons")
-			.select("id, title, slug, description, duration_seconds, position, is_active, status, module_id, created_at, updated_at")
-			.in("id", lessonIds)
-			.order("updated_at", { ascending: false });
-
-		if (lessonsError) throw new DatabaseError(lessonsError.message);
-
-		const moduleIds = [...new Set((lessonsData ?? []).map((l) => l.module_id))];
-		const moduleMap = await this.getModuleNameMap(moduleIds);
-
-		const { data: progressData, error: progressError } = await this.db
-			.from("user_lesson_progress")
-			.select("lesson_id, user_id, status, weighted_score")
-			.in("lesson_id", lessonIds);
-
-		if (progressError) throw new DatabaseError(progressError.message);
-
-		const statsMap = buildProgressStatsMap(progressData ?? []);
-
-		return (lessonsData ?? []).map((lesson) => {
-			const stats = statsMap.get(lesson.id);
-			return {
-				id: lesson.id,
-				title: lesson.title,
-				slug: lesson.slug,
-				description: lesson.description ?? null,
-				durationSeconds: lesson.duration_seconds,
-				position: lesson.position ?? null,
-				isActive: lesson.is_active ?? true,
-				status: (lesson.status ?? "draft") as TeacherLessonDTO["status"],
-				moduleId: lesson.module_id,
-				moduleName: moduleMap.get(lesson.module_id) ?? "Unknown",
-				createdAt: lesson.created_at ?? "",
-				updatedAt: lesson.updated_at ?? "",
-				studentCount: stats?.studentIds.size ?? 0,
-				completionRate:
-					stats && stats.total > 0
-						? Math.round((stats.completed / stats.total) * 100)
-						: 0,
-				avgScore:
-					stats && stats.studentIds.size > 0
-						? Math.round(stats.totalScore / stats.studentIds.size)
-						: 0,
-			};
-		});
+		const { lessons } = await this.fetchTeacherLessonsWithProgress(teacherId);
+		return lessons;
 	}
 
 	async getTeacherStats(teacherId: string): Promise<TeacherStatsDTO> {
-		const lessons = await this.listByTeacher(teacherId);
-		const lessonIds = lessons.map((l) => l.id);
+		const { lessons, progressRows } = await this.fetchTeacherLessonsWithProgress(teacherId);
 
-		const totalStudents = await this.countUniqueStudents(lessonIds);
 		const totalLessons = lessons.length;
+		const totalStudents = new Set(progressRows.map((r) => r.user_id)).size;
 		const avgCompletionRate =
 			totalLessons > 0
-				? Math.round(
-						lessons.reduce((sum, l) => sum + l.completionRate, 0) / totalLessons,
-					)
+				? Math.round(lessons.reduce((sum, l) => sum + l.completionRate, 0) / totalLessons)
 				: 0;
-
-		const liveLesson = await this.findMostRecentlyActiveLesson(lessonIds, lessons);
+		const liveLesson = this.deriveMostRecentlyActiveLesson(progressRows, lessons);
 
 		return {
 			totalLessons,
@@ -216,6 +166,82 @@ export class LessonQueryRepositoryImpl implements ILessonQueryRepository {
 		}));
 	}
 
+	private async fetchTeacherLessonsWithProgress(teacherId: string): Promise<{
+		lessons: TeacherLessonDTO[];
+		progressRows: ProgressRow[];
+	}> {
+		const lessonIds = await this.getTeacherLessonIds(teacherId);
+		if (lessonIds.length === 0) return { lessons: [], progressRows: [] };
+
+		const [lessonsResult, progressResult] = await Promise.all([
+			this.db
+				.from("lessons")
+				.select("id, title, slug, description, duration_seconds, position, is_active, status, module_id, created_at, updated_at")
+				.in("id", lessonIds)
+				.order("updated_at", { ascending: false }),
+			this.db
+				.from("user_lesson_progress")
+				.select("lesson_id, user_id, status, weighted_score, last_activity_at")
+				.in("lesson_id", lessonIds),
+		]);
+
+		if (lessonsResult.error) throw new DatabaseError(lessonsResult.error.message);
+		if (progressResult.error) throw new DatabaseError(progressResult.error.message);
+
+		const lessonsData = lessonsResult.data ?? [];
+		const progressRows = progressResult.data ?? [];
+
+		const moduleIds = [...new Set(lessonsData.map((l) => l.module_id))];
+		const moduleMap = await this.getModuleNameMap(moduleIds);
+
+		const statsMap = buildProgressStatsMap(progressRows);
+
+		const lessons: TeacherLessonDTO[] = lessonsData.map((lesson) => {
+			const stats = statsMap.get(lesson.id);
+			return {
+				id: lesson.id,
+				title: lesson.title,
+				slug: lesson.slug,
+				description: lesson.description ?? null,
+				durationSeconds: lesson.duration_seconds,
+				position: lesson.position ?? null,
+				isActive: lesson.is_active ?? true,
+				status: (lesson.status ?? "draft") as TeacherLessonDTO["status"],
+				moduleId: lesson.module_id,
+				moduleName: moduleMap.get(lesson.module_id) ?? "Unknown",
+				createdAt: lesson.created_at ?? "",
+				updatedAt: lesson.updated_at ?? "",
+				studentCount: stats?.studentIds.size ?? 0,
+				completionRate:
+					stats && stats.total > 0
+						? Math.round((stats.completed / stats.total) * 100)
+						: 0,
+				avgScore:
+					stats && stats.studentIds.size > 0
+						? Math.round(stats.totalScore / stats.studentIds.size)
+						: 0,
+			};
+		});
+
+		return { lessons, progressRows };
+	}
+
+	private deriveMostRecentlyActiveLesson(
+		progressRows: ProgressRow[],
+		lessons: TeacherLessonDTO[],
+	): TeacherStatsDTO["liveLesson"] {
+		const best = progressRows.reduce<ProgressRow | null>((acc, row) => {
+			if (!row.last_activity_at) return acc;
+			if (!acc?.last_activity_at || row.last_activity_at > acc.last_activity_at) return row;
+			return acc;
+		}, null);
+
+		if (!best) return null;
+		const lesson = lessons.find((l) => l.id === best.lesson_id);
+		if (!lesson) return null;
+		return { id: lesson.id, title: lesson.title, lastActivityAt: best.last_activity_at! };
+	}
+
 	private async getTeacherLessonIds(teacherId: string): Promise<string[]> {
 		const { data, error } = await this.db
 			.from("lesson_authors")
@@ -233,36 +259,5 @@ export class LessonQueryRepositoryImpl implements ILessonQueryRepository {
 			.in("id", moduleIds);
 		if (error) throw new DatabaseError(error.message);
 		return new Map((data ?? []).map((m) => [m.id, m.name]));
-	}
-
-	private async countUniqueStudents(lessonIds: string[]): Promise<number> {
-		if (lessonIds.length === 0) return 0;
-		const { data, error } = await this.db
-			.from("user_lesson_progress")
-			.select("user_id")
-			.in("lesson_id", lessonIds);
-		if (error) throw new DatabaseError(error.message);
-		return new Set((data ?? []).map((r) => r.user_id)).size;
-	}
-
-	private async findMostRecentlyActiveLesson(
-		lessonIds: string[],
-		lessons: TeacherLessonDTO[],
-	): Promise<TeacherStatsDTO["liveLesson"]> {
-		if (lessonIds.length === 0) return null;
-		const { data, error } = await this.db
-			.from("user_lesson_progress")
-			.select("lesson_id, last_activity_at")
-			.in("lesson_id", lessonIds)
-			.not("last_activity_at", "is", null)
-			.order("last_activity_at", { ascending: false })
-			.limit(1);
-
-		if (error || !data || data.length === 0) return null;
-		const row = data[0];
-		if (!row) return null;
-		const lesson = lessons.find((l) => l.id === row.lesson_id);
-		if (!lesson) return null;
-		return { id: lesson.id, title: lesson.title, lastActivityAt: row.last_activity_at ?? "" };
 	}
 }
