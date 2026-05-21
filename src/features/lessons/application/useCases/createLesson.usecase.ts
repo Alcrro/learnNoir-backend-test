@@ -10,6 +10,7 @@ export class CreateLessonUseCase {
 		const newLesson = new Lesson({
 			moduleId: lesson.moduleId,
 			gradeLevelId: lesson.gradeLevelId ?? null,
+			language: lesson.language ?? null,
 			title: lesson.title,
 			slug: this.genSlug(lesson.title),
 			description: lesson.description ?? null,

@@ -45,6 +45,11 @@ export interface IAuthRepository {
 	getCurrentUser(): Promise<AuthResult | null>;
 
 	/**
+	 * Refreshes an expired access token using a valid refresh token.
+	 */
+	refreshSession(refreshToken: string): Promise<AuthSession>;
+
+	/**
 	 * Logs out the current user.
 	 */
 	logout(): Promise<void>;

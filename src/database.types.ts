@@ -856,6 +856,7 @@ export type Database = {
           grade_level_id: string | null
           id: string
           is_active: boolean | null
+          language: 'python' | 'javascript' | 'java' | 'cpp' | null
           module_id: string
           position: number | null
           slug: string
@@ -870,6 +871,7 @@ export type Database = {
           grade_level_id?: string | null
           id?: string
           is_active?: boolean | null
+          language?: 'python' | 'javascript' | 'java' | 'cpp' | null
           module_id: string
           position?: number | null
           slug: string
@@ -884,6 +886,7 @@ export type Database = {
           grade_level_id?: string | null
           id?: string
           is_active?: boolean | null
+          language?: 'python' | 'javascript' | 'java' | 'cpp' | null
           module_id?: string
           position?: number | null
           slug?: string

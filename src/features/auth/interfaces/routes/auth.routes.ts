@@ -20,6 +20,7 @@ const authRepoController = authControllerFactory();
 route.post("/login", authLimiter, validateInput(LoginSchema), authRepoController.login);
 route.post("/register", authLimiter, validateInput(RegisterSchema), authRepoController.register);
 route.get("/me", requireAuthMiddleware, authRepoController.getCurrentUser);
+route.post("/refresh", authRepoController.refresh);
 route.post("/logout", authRepoController.logout);
 
 export default route;

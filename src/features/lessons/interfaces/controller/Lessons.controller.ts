@@ -41,17 +41,18 @@ export class LessonController {
 	listLessons = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		const moduleId = asString(req.query.moduleId);
 		const moduleSlug = asString(req.query.moduleSlug);
+		const language = asString(req.query.language);
 
 		if (moduleId) {
 			const lessons =
-				await this.lessonService.listLessonsByModuleIdUseCase.execute(moduleId);
+				await this.lessonService.listLessonsByModuleIdUseCase.execute(moduleId, language);
 
 			return res.status(200).json({ data: lessons });
 		}
 
 		if (moduleSlug) {
 			const lessons =
-				await this.lessonService.listLessonsByModuleSlugUseCase.execute(moduleSlug);
+				await this.lessonService.listLessonsByModuleSlugUseCase.execute(moduleSlug, language);
 
 			return res.status(200).json({ data: lessons });
 		}
@@ -64,13 +65,14 @@ export class LessonController {
 	listLessonsByModuleId = asyncHandlerMiddleware(
 		async (req: Request, res: Response) => {
 			const moduleId = asString(req.params.moduleId);
+			const language = asString(req.query.language);
 
 			if (!moduleId) {
 				return res.status(400).json({ error: "Module ID is required" });
 			}
 
 			const lessons =
-				await this.lessonService.listLessonsByModuleIdUseCase.execute(moduleId);
+				await this.lessonService.listLessonsByModuleIdUseCase.execute(moduleId, language);
 
 			return res.status(200).json({ data: lessons });
 		},
@@ -79,13 +81,14 @@ export class LessonController {
 	listLessonsByModuleSlug = asyncHandlerMiddleware(
 		async (req: Request, res: Response) => {
 			const slug = asString(req.params.slug);
+			const language = asString(req.query.language);
 
 			if (!slug) {
 				return res.status(400).json({ error: "Module slug is required" });
 			}
 
 			const lessons =
-				await this.lessonService.listLessonsByModuleSlugUseCase.execute(slug);
+				await this.lessonService.listLessonsByModuleSlugUseCase.execute(slug, language);
 
 			return res.status(200).json({ data: lessons });
 		},

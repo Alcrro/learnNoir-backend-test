@@ -15,7 +15,7 @@ const teacherOnly = [requireAuthMiddleware, roleRequiredMiddleware(["teacher", "
 
 // /preview must be registered before /lesson/:lessonId to avoid param conflicts
 route.get("/lesson/:lessonId/preview", findPreviewByLessonId);
-route.get("/lesson/:lessonId", requireAuthMiddleware, requireProMiddleware, findByLessonId);
+route.get("/lesson/:lessonId", findByLessonId);
 route.get("/:id", findOne);
 route.post("/", validateInput(CreateLessonBlockSchema), createLessonBlock);
 route.patch("/:id/content", ...teacherOnly, updateContent);

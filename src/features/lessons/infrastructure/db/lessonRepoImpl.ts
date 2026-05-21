@@ -7,7 +7,7 @@ import {
 	NotFoundError,
 } from "../../../../utils/errors/DatabaseError";
 import type { Database } from "../../../../database.types";
-import type { LessonAuthor } from "../../domain/types/Lesson.type";
+import type { LessonAuthor, ProgrammingLanguage } from "../../domain/types/Lesson.type";
 
 type LessonRow = Database["public"]["Tables"]["lessons"]["Row"];
 type LessonAuthorRow = Database["public"]["Tables"]["lesson_authors"]["Row"];
@@ -28,12 +28,17 @@ export class LessonRepositoryImpl implements ILessonRepository {
 		return this.mapRowsWithAuthors(data ?? []);
 	}
 
-	async listByModuleId(moduleId: string): Promise<LessonEntity[]> {
-		const { data, error } = await this.db
+	async listByModuleId(moduleId: string, language?: string | null): Promise<LessonEntity[]> {
+		let query = this.db
 			.from("lessons")
 			.select("*")
-			.eq("module_id", moduleId)
-			.order("position", { ascending: true });
+			.eq("module_id", moduleId);
+
+		if (language) {
+			query = query.eq("language", language as ProgrammingLanguage);
+		}
+
+		const { data, error } = await query.order("position", { ascending: true });
 
 		if (error) {
 			throw new DatabaseError(error.message);
@@ -42,7 +47,7 @@ export class LessonRepositoryImpl implements ILessonRepository {
 		return this.mapRowsWithAuthors(data ?? []);
 	}
 
-	async listByModuleSlug(slug: string): Promise<LessonEntity[]> {
+	async listByModuleSlug(slug: string, language?: string | null): Promise<LessonEntity[]> {
 		const { data: moduleRow, error: moduleError } = await this.db
 			.from("modules")
 			.select("id")
@@ -57,7 +62,7 @@ export class LessonRepositoryImpl implements ILessonRepository {
 			return [];
 		}
 
-		return this.listByModuleId(moduleRow.id);
+		return this.listByModuleId(moduleRow.id, language);
 	}
 
 	async getBySlug(slug: string): Promise<LessonEntity | null> {

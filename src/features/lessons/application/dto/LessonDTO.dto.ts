@@ -6,6 +6,7 @@ export function mapToDto(lesson: Lesson): LessonDTO {
 		id: lesson.id,
 		moduleId: lesson.moduleId,
 		gradeLevelId: lesson.gradeLevelId,
+		language: lesson.language ?? null,
 		title: lesson.title,
 		slug: lesson.slug,
 		description: lesson.description ?? null,

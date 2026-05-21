@@ -32,6 +32,9 @@ import { env } from "./config/env";
 
 const app = express();
 
+// Trust one proxy hop so express-rate-limit can read the real client IP from X-Forwarded-For
+app.set("trust proxy", 1);
+
 // ── Security middleware ────────────────────────────────────────────────────────
 // Helmet sets defensive HTTP headers (XSS, clickjacking, sniffing) — must run first
 app.use(

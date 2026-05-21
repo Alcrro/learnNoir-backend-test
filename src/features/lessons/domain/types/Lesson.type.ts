@@ -1,1 +1,1 @@
-export type { LessonAuthor, ILesson, LessonStatus } from "@shared/lesson";
+export type { LessonAuthor, ILesson, LessonStatus, ProgrammingLanguage } from "@shared/lesson";

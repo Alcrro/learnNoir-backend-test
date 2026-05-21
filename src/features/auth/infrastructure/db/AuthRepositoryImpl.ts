@@ -63,6 +63,17 @@ export class AuthRepositoryImpl implements IAuthRepository {
 		return AuthRepoImplMapper.authRepoResultImplMapper(data.user);
 	}
 
+	async refreshSession(refreshToken: string): Promise<AuthSession> {
+		const { data, error } = await this.db.auth.refreshSession({
+			refresh_token: refreshToken,
+		});
+
+		if (error) throw new AppError(error.message);
+		if (!data.session) throw new AppError("Could not refresh session");
+
+		return AuthRepoImplMapper.authLoginSessionMapper(data.session);
+	}
+
 	logout(): Promise<void> {
 		throw new Error("Method not implemented.");
 	}

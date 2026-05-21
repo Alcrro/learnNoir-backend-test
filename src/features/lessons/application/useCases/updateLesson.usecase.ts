@@ -34,6 +34,9 @@ export class UpdateLessonUseCase {
 			gradeLevelId: lessonPatch.gradeLevelId !== undefined
 				? lessonPatch.gradeLevelId
 				: currentLesson.gradeLevelId,
+			language: lessonPatch.language !== undefined
+				? lessonPatch.language
+				: currentLesson.language,
 			title: nextTitle,
 			slug: nextSlug,
 			description: lessonPatch.description ?? currentLesson.description ?? null,
