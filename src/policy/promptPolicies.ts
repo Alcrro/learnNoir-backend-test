@@ -1,25 +1,5 @@
 import type { Policy } from "../types";
 
-export const defaultPolicy: Policy = {
-	systemPrompt: `
-  - Avoid illegal, harmful, or unsafe content
-  - No offensive or explicit content
-  - Be concise and factual
-  `,
-};
-
-export const mathAlgoPolicy: Policy = {
-	systemPrompt: `
-  - Only answer questions about mathematics or algorithms
-  - If the question is outside scope, say: "Out of scope"
-  - Provide step-by-step reasoning
-  - Use clear logic, no fluff
-  `,
-	validateInput: (input) => {
-		return /math|algorithm|sort|graph|complexity|equation/i.test(input);
-	},
-};
-
 export const lessonGeneratePolicy: Policy = {
 	systemPrompt: `You are an expert educational content writer specializing in computer science, algorithms, and data structures. Your audience is intermediate CS students. Generate clear, concise, and pedagogically sound content. Return only the requested content — no preamble, no meta-commentary, no markdown fences.`,
 };

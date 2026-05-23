@@ -17,16 +17,16 @@ export class LessonAudioController {
 		const audio = await this.services.getAudio.execute(lessonId);
 
 		if (!audio) {
-			return res.status(404).json({ success: false, message: "No audio generated yet" });
+			return res.status(404).json({ error: "No audio generated yet" });
 		}
 
-		return res.status(200).json({ success: true, data: audio });
+		return res.status(200).json({ data: audio });
 	});
 
 	generateAudio = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		const lessonId = requireString(req.params["lessonId"], "lessonId is required");
 		const audio = await this.services.generateAudio.execute(lessonId);
-		return res.status(201).json({ success: true, data: audio });
+		return res.status(201).json({ data: audio });
 	});
 }
 

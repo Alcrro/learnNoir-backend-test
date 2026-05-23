@@ -19,7 +19,7 @@ export class SubjectsController {
 			req.body,
 		);
 
-		res.status(201).json(newSubject);
+		res.status(201).json({ data: newSubject });
 	});
 
 	getSubjectsStats = asyncHandlerMiddleware(
@@ -39,7 +39,7 @@ export class SubjectsController {
 			const result =
 				await this.subjectsService.getSubjectQueryStatsUsecase.execute(params);
 
-			res.status(200).json({ success: true, data: result });
+			res.status(200).json({ data: result });
 		},
 	);
 }

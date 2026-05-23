@@ -24,7 +24,7 @@ export class ProfileController {
 
 		const profile = await this.profileService.findProfileUseCase.execute(userId);
 
-		return res.status(200).json({ success: true, data: profile });
+		return res.status(200).json({ data: profile });
 	});
 
 	updateProfile = asyncHandlerMiddleware(async (req: Request, res: Response) => {
@@ -39,7 +39,7 @@ export class ProfileController {
 			userId,
 			profileData,
 		);
-		return res.status(200).json({ success: true, data: updatedProfile });
+		return res.status(200).json({ data: updatedProfile });
 	});
 
 	deleteProfile = asyncHandlerMiddleware(async (req: Request, res: Response) => {

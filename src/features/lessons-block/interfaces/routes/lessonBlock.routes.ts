@@ -3,7 +3,6 @@ import { validateInput } from "../../../../utils/validateInputMiddleware";
 import { CreateLessonBlockSchema } from "../../application/dto/LessonBlock.dto";
 import { useLessonBlockControllerFactory } from "../../infrastructure/factories/lessonBlockController.factory";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware";
-import { requireProMiddleware } from "../../../../utils/requireProMiddleware";
 import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware";
 
 const route = Router();

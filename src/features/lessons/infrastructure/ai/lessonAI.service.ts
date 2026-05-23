@@ -10,6 +10,8 @@ import {
 } from "../../../../policy/promptPolicies.ts";
 import type { LessonContentNode } from "@shared/lesson-block";
 import { lessonPrompts } from "./lessonPrompts.ts";
+import type { CacheService } from "../cache/cache.service.ts";
+import { buildCacheKey } from "../../../../utils/cacheKey.ts";
 
 export type LessonReviewResult = {
 	clarity: number;
@@ -28,7 +30,7 @@ export type QuizQuestion = {
 export class LessonAIService {
 	private openai: OpenAI;
 
-	constructor() {
+	constructor(private cache?: CacheService) {
 		this.openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 	}
 
@@ -42,7 +44,7 @@ export class LessonAIService {
 		};
 
 		const cfg = configs[field];
-		return this.callText(lessonGeneratePolicy.systemPrompt, cfg.prompt, cfg.model, cfg.maxTokens, cfg.temperature);
+		return this.callText(lessonGeneratePolicy.systemPrompt, cfg.prompt, cfg.model, cfg.maxTokens, cfg.temperature, buildCacheKey(`lesson:${field}`, cfg.prompt));
 	}
 
 	// Generates a structured array of LessonContentNode blocks for a topic.
@@ -56,6 +58,7 @@ export class LessonAIService {
 			env.OPENAI_CONTENT_MODEL,
 			3000,
 			0.4,
+			buildCacheKey("lesson:blocks", prompt),
 		);
 
 		// Policy instructs model to return { "nodes": [...] }
@@ -67,11 +70,13 @@ export class LessonAIService {
 	}
 
 	async improveText(text: string, context?: string): Promise<string> {
-		return this.callText(lessonImprovePolicy.systemPrompt, lessonPrompts.improveText(text, context), env.OPENAI_CONTENT_MODEL, 2000, 0.6);
+		const prompt = lessonPrompts.improveText(text, context);
+		return this.callText(lessonImprovePolicy.systemPrompt, prompt, env.OPENAI_CONTENT_MODEL, 2000, 0.6, buildCacheKey("lesson:improve", prompt));
 	}
 
 	async reviewLesson(lesson: { title: string; description: string; content: string }): Promise<LessonReviewResult> {
-		const raw = await this.callJson(lessonReviewPolicy.systemPrompt, lessonPrompts.reviewLesson(lesson), env.OPENAI_FAST_MODEL, 800, 0.3);
+		const prompt = lessonPrompts.reviewLesson(lesson);
+		const raw = await this.callJson(lessonReviewPolicy.systemPrompt, prompt, env.OPENAI_FAST_MODEL, 800, 0.3, buildCacheKey("lesson:review", prompt));
 		const obj = Array.isArray(raw) ? {} : raw;
 
 		return {
@@ -83,7 +88,8 @@ export class LessonAIService {
 	}
 
 	async generateMetadata(title: string, moduleName: string): Promise<{ description: string; durationMinutes: number }> {
-		const raw = await this.callJson(lessonMetadataPolicy.systemPrompt, lessonPrompts.generateMetadata(title, moduleName), env.OPENAI_FAST_MODEL, 200, 0.4);
+		const prompt = lessonPrompts.generateMetadata(title, moduleName);
+		const raw = await this.callJson(lessonMetadataPolicy.systemPrompt, prompt, env.OPENAI_FAST_MODEL, 200, 0.4, buildCacheKey("lesson:metadata", prompt));
 		const obj = Array.isArray(raw) ? {} : raw;
 		return {
 			description: typeof obj["description"] === "string" ? obj["description"] : "",
@@ -92,7 +98,8 @@ export class LessonAIService {
 	}
 
 	async generateQuizQuestions(content: string, count = 3): Promise<QuizQuestion[]> {
-		const raw = await this.callJson(lessonQuizPolicy.systemPrompt, lessonPrompts.generateQuizQuestions(content, count), env.OPENAI_CONTENT_MODEL, 2000, 0.5);
+		const prompt = lessonPrompts.generateQuizQuestions(content, count);
+		const raw = await this.callJson(lessonQuizPolicy.systemPrompt, prompt, env.OPENAI_CONTENT_MODEL, 2000, 0.5, buildCacheKey(`lesson:quiz:${count}`, prompt));
 
 		if (!Array.isArray(raw)) return [];
 
@@ -121,7 +128,13 @@ export class LessonAIService {
 		model: string,
 		maxTokens: number,
 		temperature: number,
+		cacheKey?: string,
 	): Promise<string> {
+		if (cacheKey && this.cache) {
+			const cached = await this.cache.get(cacheKey);
+			if (cached) return cached;
+		}
+
 		const response = await this.openai.chat.completions.create({
 			model,
 			max_completion_tokens: maxTokens,
@@ -132,7 +145,13 @@ export class LessonAIService {
 			],
 		});
 
-		return response.choices[0]?.message?.content?.trim() ?? "";
+		const result = response.choices[0]?.message?.content?.trim() ?? "";
+
+		if (cacheKey && this.cache && result) {
+			await this.cache.set(cacheKey, result, env.CACHE_TTL);
+		}
+
+		return result;
 	}
 
 	private async callJson(
@@ -141,7 +160,19 @@ export class LessonAIService {
 		model: string,
 		maxTokens: number,
 		temperature: number,
+		cacheKey?: string,
 	): Promise<Record<string, unknown> | unknown[]> {
+		if (cacheKey && this.cache) {
+			const cached = await this.cache.get(cacheKey);
+			if (cached) {
+				try {
+					return JSON.parse(cached) as Record<string, unknown> | unknown[];
+				} catch {
+					// cache corrupted — proceed with API call
+				}
+			}
+		}
+
 		const response = await this.openai.chat.completions.create({
 			model,
 			max_completion_tokens: maxTokens,
@@ -154,6 +185,11 @@ export class LessonAIService {
 		});
 
 		const text = response.choices[0]?.message?.content ?? "{}";
+
+		if (cacheKey && this.cache) {
+			await this.cache.set(cacheKey, text, env.CACHE_TTL);
+		}
+
 		try {
 			return JSON.parse(text) as Record<string, unknown> | unknown[];
 		} catch {

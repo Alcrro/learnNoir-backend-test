@@ -104,8 +104,8 @@ function segmentScript(script: string): AudioSegment[] {
 export class LessonAudioAIService {
 	private openai: OpenAI;
 
-	constructor(apiKey: string) {
-		this.openai = new OpenAI({ apiKey });
+	constructor() {
+		this.openai = new OpenAI({ apiKey: env.OPENAI_API_KEY });
 	}
 
 	async generateScript(contentNodes: ContentNode[]): Promise<AudioSegment[]> {

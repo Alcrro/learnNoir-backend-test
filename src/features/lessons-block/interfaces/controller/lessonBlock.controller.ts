@@ -26,11 +26,7 @@ export class LessonBlockController {
 			const lessonBlock =
 				await this.lessonBlockServices.getLessonBlockById.execute(id);
 
-			return res.status(200).json({
-				success: true,
-				message: `Lesson block ${id} successfully found`,
-				lessonBlock,
-			});
+			return res.status(200).json({ data: lessonBlock });
 		},
 	);
 
@@ -42,10 +38,7 @@ export class LessonBlockController {
 			const blocks =
 				await this.lessonBlockServices.getBlocksByLessonId.execute(lessonId);
 
-			return res.status(200).json({
-				success: true,
-				data: blocks,
-			});
+			return res.status(200).json({ data: blocks });
 		},
 	);
 
@@ -57,10 +50,7 @@ export class LessonBlockController {
 			const blocks =
 				await this.lessonBlockServices.getBlocksPreview.execute(lessonId);
 
-			return res.status(200).json({
-				success: true,
-				data: blocks,
-			});
+			return res.status(200).json({ data: blocks });
 		},
 	);
 
@@ -75,7 +65,7 @@ export class LessonBlockController {
 				id,
 				content as Record<string, unknown>[],
 			);
-			return res.status(200).json({ success: true });
+			return res.status(200).json({ data: null });
 		},
 	);
 
@@ -90,11 +80,7 @@ export class LessonBlockController {
 			const createdLessonBlock =
 				await this.lessonBlockServices.createLessonBlock.execute(payload);
 
-			return res.status(201).json({
-				success: true,
-				message: `Lesson block ${createdLessonBlock.id} successfully created`,
-				createdLessonBlock,
-			});
+			return res.status(201).json({ data: createdLessonBlock });
 		},
 	);
 }

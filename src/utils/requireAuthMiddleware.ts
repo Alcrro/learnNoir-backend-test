@@ -7,11 +7,16 @@ import { ProfileRepoImpl } from "../features/profiles/infrastructures/db/Profile
 import { supabase } from "../core/db/supabaseClient";
 import { supabaseAuth } from "../core/db/supabaseAuthClient";
 import { env } from "../config/env";
+import { logger } from "../core/logger";
 
 // JWKS is fetched once and cached in-process — handles key rotation automatically
 const JWKS = createRemoteJWKSet(
 	new URL(`${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`),
 );
+
+// Singletons — repo and use-case are stateless wrappers; no need to re-instantiate per request
+const profileRepo = new ProfileRepoImpl(supabase);
+const profileUseCase = new FindProfileUseCase(profileRepo);
 
 function setCookies(res: Response, accessToken: string, refreshToken: string) {
 	const { isProd } = env;
@@ -35,9 +40,6 @@ export const requireAuthMiddleware = async (
 		res.status(401).json({ error: "Unauthorized" });
 		return;
 	}
-
-	const profileRepoImpl = new ProfileRepoImpl(supabase);
-	const profileUseCase = new FindProfileUseCase(profileRepoImpl);
 
 	try {
 		const { payload } = await jwtVerify(accessToken, JWKS);
@@ -66,7 +68,7 @@ export const requireAuthMiddleware = async (
 		next();
 	} catch (err) {
 		const errCode = err instanceof Error && "code" in err ? (err as { code: string }).code : "unknown";
-		console.log("[auth] jwtVerify failed, code:", errCode, "type:", err?.constructor?.name);
+		logger.warn({ errCode }, "[auth] jwtVerify failed");
 
 		const isExpired = errCode === "ERR_JWT_EXPIRED";
 		if (!isExpired) {
@@ -77,44 +79,47 @@ export const requireAuthMiddleware = async (
 		// Access token expired — try to silently refresh using the refresh token cookie
 		const refreshToken = req.cookies.refreshToken as string | undefined;
 		if (!refreshToken) {
-			console.log("[auth] No refresh token cookie found");
 			res.status(401).json({ error: "Unauthorized" });
 			return;
 		}
 
-		console.log("[auth] Access token expired, attempting refresh...");
-		const { data, error } = await supabaseAuth.auth.refreshSession({
-			refresh_token: refreshToken,
-		});
+		try {
+			logger.info("[auth] Access token expired, attempting silent refresh");
+			const { data, error } = await supabaseAuth.auth.refreshSession({
+				refresh_token: refreshToken,
+			});
 
-		if (error || !data.session) {
-			console.log("[auth] Refresh failed:", error?.message);
+			if (error || !data.session) {
+				logger.warn({ msg: error?.message }, "[auth] Refresh failed");
+				res.clearCookie("accessToken");
+				res.clearCookie("refreshToken");
+				res.status(401).json({ error: "Session expired, please login again" });
+				return;
+			}
+
+			setCookies(res, data.session.access_token, data.session.refresh_token);
+
+			const sub = data.session.user.id;
+			const userProfile = await profileUseCase.execute(sub);
+			if (!userProfile) {
+				res.status(401).json({ error: "Unauthorized" });
+				return;
+			}
+
+			const role = userProfile.role as role;
+			if (!role) {
+				res.status(401).json({ error: "Unauthorized" });
+				return;
+			}
+
+			req.userId = sub;
+			req.userRole = role;
+			logger.info("[auth] Silent refresh successful");
+			next();
+		} catch {
 			res.clearCookie("accessToken");
 			res.clearCookie("refreshToken");
-			res.status(401).json({ error: "Session expired, please login again" });
-			return;
-		}
-
-		console.log("[auth] Refresh successful, new tokens set");
-
-		setCookies(res, data.session.access_token, data.session.refresh_token);
-
-		const sub = data.session.user.id;
-		const userProfile = await profileUseCase.execute(sub);
-		if (!userProfile) {
 			res.status(401).json({ error: "Unauthorized" });
-			return;
 		}
-
-		const role = userProfile.role as role;
-		if (!role) {
-			res.status(401).json({ error: "Unauthorized" });
-			return;
-		}
-
-		req.userId = sub;
-		req.userRole = role;
-
-		next();
 	}
 };

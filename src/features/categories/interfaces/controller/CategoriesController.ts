@@ -16,16 +16,14 @@ export class CategoriesController {
 	create = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		await this.categoriesServices.createCategoriesUseCase.execute(req.body);
 
-		res
-			.status(201)
-			.json({ success: true, message: "Category created successfully!" });
+		res.status(201).json({ data: null });
 	});
 
 	getAllCategoriesQuery = asyncHandlerMiddleware(
 		async (_req: Request, res: Response) => {
 			const result = await this.categoriesServices.getAllCategoriesQuery.execute();
 
-			res.status(202).json({ success: true, data: result });
+			res.status(200).json({ data: result });
 		},
 	);
 
@@ -34,7 +32,7 @@ export class CategoriesController {
 			const { slug } = req.params as { slug: string };
 			const result = await this.categoriesServices.getCategoriesWithModules.execute(slug);
 
-			res.status(200).json({ success: true, data: result });
+			res.status(200).json({ data: result });
 		},
 	);
 }

@@ -14,12 +14,12 @@ export class ModulesController {
 	create = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		await this.modulesServices.createModulesUsecase.execute(req.body);
 
-		res.status(201).json({ message: "Module created successfully" });
+		res.status(201).json({ data: null });
 	});
 
 	getAll = asyncHandlerMiddleware(async (_req: Request, res: Response) => {
 		const result = await this.modulesServices.getAllModulesUsecase.execute();
 
-		res.status(200).json({ success: true, data: result });
+		res.status(200).json({ data: result });
 	});
 }

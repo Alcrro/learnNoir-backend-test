@@ -17,16 +17,16 @@ export class LessonVideoController {
 		const video = await this.services.getVideo.execute(lessonId);
 
 		if (!video) {
-			return res.status(404).json({ success: false, message: "No video generated yet" });
+			return res.status(404).json({ error: "No video generated yet" });
 		}
 
-		return res.status(200).json({ success: true, data: video });
+		return res.status(200).json({ data: video });
 	});
 
 	generateVideo = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		const lessonId = requireString(req.params["lessonId"], "lessonId is required");
 		const video = await this.services.generateVideo.execute(lessonId);
-		return res.status(201).json({ success: true, data: video });
+		return res.status(201).json({ data: video });
 	});
 }
 

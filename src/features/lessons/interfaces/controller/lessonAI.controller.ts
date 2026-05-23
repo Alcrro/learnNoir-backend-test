@@ -2,8 +2,10 @@ import type { Response } from "express";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware.ts";
 import type { RequestWithUserId } from "../../../auth/interfaces/controllers/Auth.controller.ts";
 import { LessonAIService } from "../../infrastructure/ai/lessonAI.service.ts";
+import { CacheService } from "../../infrastructure/cache/cache.service.ts";
+import { redis } from "../../../../core/cache/redis.ts";
 
-const ai = new LessonAIService();
+const ai = new LessonAIService(new CacheService(redis));
 
 export const generateLessonContent = asyncHandlerMiddleware(
 	async (req: RequestWithUserId, res: Response) => {

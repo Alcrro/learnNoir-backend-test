@@ -3,6 +3,7 @@ import rateLimit from "express-rate-limit";
 import { authControllerFactory } from "../../Auth.factory";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware";
 import { validateInput } from "../../../../utils/validateInputMiddleware";
+import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware";
 import { LoginSchema, RegisterSchema } from "../../application/dto/auth.schema";
 
 const route = Router();
@@ -17,10 +18,10 @@ const authLimiter = rateLimit({
 });
 
 const authRepoController = authControllerFactory();
-route.post("/login", authLimiter, validateInput(LoginSchema), authRepoController.login);
-route.post("/register", authLimiter, validateInput(RegisterSchema), authRepoController.register);
-route.get("/me", requireAuthMiddleware, authRepoController.getCurrentUser);
-route.post("/refresh", authRepoController.refresh);
-route.post("/logout", authRepoController.logout);
+route.post("/login", authLimiter, validateInput(LoginSchema), asyncHandlerMiddleware(authRepoController.login));
+route.post("/register", authLimiter, validateInput(RegisterSchema), asyncHandlerMiddleware(authRepoController.register));
+route.get("/me", requireAuthMiddleware, asyncHandlerMiddleware(authRepoController.getCurrentUser));
+route.post("/refresh", asyncHandlerMiddleware(authRepoController.refresh));
+route.post("/logout", asyncHandlerMiddleware(authRepoController.logout));
 
 export default route;

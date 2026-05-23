@@ -27,7 +27,7 @@ export class AuthController {
 			password,
 		);
 
-		return res.status(201).json({ success: true, message: registerUser });
+		return res.status(201).json({ data: registerUser });
 	};
 
 	login = async (req: Request, res: Response) => {
@@ -58,7 +58,7 @@ export class AuthController {
 		});
 
 		const { accessToken: _at, refreshToken: _rt, ...safeData } = loginUser;
-		return res.status(201).json({ success: true, data: safeData });
+		return res.status(200).json({ data: safeData });
 	};
 
 	getCurrentUser = async (req: RequestWithUserId, res: Response) => {
@@ -68,7 +68,7 @@ export class AuthController {
 			return res.status(404).json({ error: "User not found" });
 		}
 
-		return res.status(200).json({ success: true, data: { userId } });
+		return res.status(200).json({ data: { userId } });
 	};
 
 	refresh = async (req: Request, res: Response) => {
@@ -94,13 +94,13 @@ export class AuthController {
 			maxAge: 7 * 24 * 60 * 60 * 1000,
 		});
 
-		return res.status(200).json({ success: true });
+		return res.status(200).json({ data: null });
 	};
 
 	logout = async (_req: Request, res: Response) => {
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
-		return res.status(200).json({ success: true, message: "Logged out" });
+		return res.status(200).json({ data: null });
 	};
 }

@@ -126,7 +126,7 @@ export class LessonTheoryInteractionsController {
 			...(message !== undefined && { message }),
 			...(selectedOptionIds !== undefined && { selectedOptionIds }),
 		});
-		res.json({ success: true });
+		res.json({ data: null });
 	};
 
 	/** GET /api/lessons/:lessonId/theory-interactions/:componentId/feedback-options */
@@ -148,7 +148,7 @@ export class LessonTheoryInteractionsController {
 		}
 
 		await this.deleteFeedbackUseCase.execute(lessonId, componentId, userId);
-		res.json({ success: true });
+		res.json({ data: null });
 	};
 
 	/** POST /api/lessons/:lessonId/theory-interactions/:interactionId/attempt */

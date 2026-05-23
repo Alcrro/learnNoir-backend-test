@@ -4,6 +4,7 @@ import { ListLessonsUseCase } from "../../application/useCases/listLessons.useca
 import { ListLessonsByModuleIdUseCase } from "../../application/useCases/listLessonsByModuleId.usecase";
 import { LessonController } from "../../interfaces/controller/Lessons.controller";
 import { LessonRepositoryImpl } from "../db/lessonRepoImpl";
+import { ModulesRepoImpl } from "../../../modules/infrastructure/db/ModulesRepoImpl";
 import { LessonQueryRepositoryImpl } from "../db/lessonQueryRepoImpl";
 import { PublishLessonUseCase } from "../../application/useCases/publishLesson.usecase";
 import { CreateLessonUseCase } from "../../application/useCases/createLesson.usecase";
@@ -19,17 +20,20 @@ import { GetLessonHistoryUseCase } from "../../application/useCases/getLessonHis
 import { GenerateBlocksFromTextUseCase } from "../../application/useCases/generateBlocksFromText.usecase";
 import { LessonAIService } from "../ai/lessonAI.service";
 import { LessonBlockRepoImpl } from "../../../lessons-block/infrastructure/db/LessonBlockRepoImpl";
+import { CacheService } from "../cache/cache.service";
+import { redis } from "../../../../core/cache/redis";
 
 export function lessonControllerFactory(): LessonController {
 	const lessonRepo = new LessonRepositoryImpl(supabase);
+	const moduleRepo = new ModulesRepoImpl(supabase);
 	const lessonQueryRepo = new LessonQueryRepositoryImpl(supabase);
 	const blockRepoImpl = new LessonBlockRepoImpl(supabase);
-	const aiService = new LessonAIService();
+	const aiService = new LessonAIService(new CacheService(redis));
 
 	const lessonServices = {
 		listLessonsUseCase: new ListLessonsUseCase(lessonRepo),
 		listLessonsByModuleIdUseCase: new ListLessonsByModuleIdUseCase(lessonRepo),
-		listLessonsByModuleSlugUseCase: new ListLessonsByModuleSlugUseCase(lessonRepo),
+		listLessonsByModuleSlugUseCase: new ListLessonsByModuleSlugUseCase(moduleRepo, lessonRepo),
 		getLessonUseCase: new GetLesson(lessonRepo),
 		getLessonBySlugUseCase: new GetLessonBySlugUseCase(lessonRepo),
 		createLessonUseCase: new CreateLessonUseCase(lessonRepo),

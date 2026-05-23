@@ -7,11 +7,11 @@ export function roleRequiredMiddleware(requiredRole: role[]) {
 		const userRole = req?.userRole; // Assuming req.user is populated by authentication middleware
 
 		if (!userRole) {
-			return res.status(401).json({ message: "Unauthorized: No role found" });
+			return res.status(401).json({ error: "Unauthorized" });
 		}
 
 		if (!requiredRole.includes(userRole)) {
-			return res.status(403).json({ message: "Forbidden: Insufficient role" });
+			return res.status(403).json({ error: "Forbidden" });
 		}
 
 		return next();

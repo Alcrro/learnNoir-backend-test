@@ -1,5 +1,4 @@
 import { supabase } from "../../../../core/db/supabaseClient.ts";
-import { env } from "../../../../config/env.ts";
 import { LessonAudioRepoImpl } from "../db/LessonAudioRepoImpl.ts";
 import { LessonAudioAIService } from "../ai/LessonAudioAIService.ts";
 import { SupabaseAudioStorage } from "../storage/SupabaseAudioStorage.ts";
@@ -11,7 +10,7 @@ import { LessonBlockRepoImpl } from "../../../lessons-block/infrastructure/db/Le
 export const useLessonAudioControllerFactory = (): LessonAudioController => {
 	const audioRepo = new LessonAudioRepoImpl(supabase);
 	const blockRepo = new LessonBlockRepoImpl(supabase);
-	const aiService = new LessonAudioAIService(env.OPENAI_API_KEY);
+	const aiService = new LessonAudioAIService();
 	const storage = new SupabaseAudioStorage(supabase);
 
 	return new LessonAudioController({

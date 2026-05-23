@@ -1,5 +1,8 @@
 import OpenAI from "openai";
 import { env } from "../../../../config/env.ts";
+import { redis } from "../../../../core/cache/redis.ts";
+import { buildCacheKey } from "../../../../utils/cacheKey.ts";
+import type { Policy } from "../../../../types.ts";
 import type {
 	TheoryInteractionComponentType,
 	TheoryInteractionContent,
@@ -13,15 +16,18 @@ Generezi conținut în ROMÂNĂ, adaptat subiectului și tipului lecției primit
 Returnezi NUMAI JSON valid, fără explicații, fără markdown fences.
 Conținutul trebuie să fie pedagogic corect, concis și adaptat pentru studenți.`;
 
-// ── Per-component system prompts (generic, not subject-specific) ──────────────
+// ── Per-component policies ────────────────────────────────────────────────────
 
-const COMPONENT_POLICIES: Record<TheoryInteractionComponentType, string> = {
-	predict_prompt: `${BASE}
+const COMPONENT_POLICIES: Record<TheoryInteractionComponentType, Policy> = {
+	predict_prompt: {
+		systemPrompt: `${BASE}
 Generezi o întrebare de predicție care activează cunoștințele anterioare înainte de a citi teoria.
 Întrebarea este concretă, nu are răspuns greșit — scopul e gândirea, nu testarea.
 Return: { "question": "<întrebare în română>" }`,
+	},
 
-	concrete_example: `${BASE}
+	concrete_example: {
+		systemPrompt: `${BASE}
 Generezi un exemplu concret pas cu pas care trasează execuția / aplicarea conceptului.
 Fiecare pas are o descriere clară în română și un label scurt.
 Adaptezi formatul la tipul lecției (algoritm, formulă matematică, structură de date etc.).
@@ -29,38 +35,51 @@ Return: {
   "title": "<titlu scurt>",
   "steps": [{ "label": "<label>", "description": "<explicație în română>", "state": <orice JSON relevant pentru vizualizare> }]
 }`,
+	},
 
-	elaboration: `${BASE}
+	elaboration: {
+		systemPrompt: `${BASE}
 Generezi o întrebare elaborativă "De ce funcționează asta?" + răspuns detaliat care explică logica sau invarianta.
 Return: { "question": "<De ce...? în română>", "answer": "<explicație detaliată în română>" }`,
+	},
 
-	interactive_exercise: `${BASE}
+	interactive_exercise: {
+		systemPrompt: `${BASE}
 Generezi un exercițiu interactiv specific tipului de lecție:
 - Pentru algoritmi / CS: derivare de complexitate (ghicire → derivare pas cu pas)
 - Pentru matematică: demonstrație pas cu pas sau derivare de formulă
 - Pentru alte subiecte: exercițiu de aplicare a conceptului
 Structura JSON se adaptează la tipul exercițiului — include un câmp "type" pentru a identifica ce randezi.
 Return: { "type": "<tip_exercitiu>", "data": { ...structura relevanta... } }`,
+	},
 
-	transfer: `${BASE}
+	transfer: {
+		systemPrompt: `${BASE}
 Generezi 2-3 scenarii reale unde studentul decide dacă conceptul / algoritmul / metoda este potrivită.
 Scenariile sunt concrete, variate, cu feedback clar.
 Return: { "scenarios": [{ "id": "s1", "scenario": "<scenariu concret în română>", "answer": "yes" | "no", "explanation": "<de ce, în română>" }] }`,
+	},
 
-	recall_1: `${BASE}
+	recall_1: {
+		systemPrompt: `${BASE}
 Generezi 1 întrebare MCQ despre conceptul sau pașii principali din lecție (nu complexitate sau detalii tehnice avansate).
 Testează înțelegerea de bază.
 Return: { "questions": [{ "id": "r1", "question": "<întrebare în română>", "options": ["<A>","<B>","<C>","<D>"], "correctIndex": <0-3>, "explanation": "<de ce e corect, în română>" }] }`,
+	},
 
-	recall_2: `${BASE}
+	recall_2: {
+		systemPrompt: `${BASE}
 Generezi 1 întrebare MCQ despre proprietățile tehnice, complexitate sau detalii specifice ale lecției.
 Testează înțelegerea mai profundă.
 Return: { "questions": [{ "id": "r2", "question": "<întrebare în română>", "options": ["<A>","<B>","<C>","<D>"], "correctIndex": <0-3>, "explanation": "<de ce e corect, în română>" }] }`,
+	},
 
-	recall_final: `${BASE}
+	recall_final: {
+		systemPrompt: `${BASE}
 Generezi 1 întrebare MCQ de sinteză — poate fi o predicție, o comparație, sau o aplicare reală.
 Testează înțelegerea holistică.
 Return: { "questions": [{ "id": "r3", "question": "<întrebare în română>", "options": ["<A>","<B>","<C>","<D>"], "correctIndex": <0-3>, "explanation": "<de ce e corect, în română>" }] }`,
+	},
 };
 
 // ── User prompt builder ───────────────────────────────────────────────────────
@@ -107,8 +126,18 @@ export class LessonTheoryInteractionsAIService {
 		component: TheoryInteractionComponentType,
 		ctx: LessonContextForAI,
 	): Promise<TheoryInteractionContent> {
-		const systemPrompt = COMPONENT_POLICIES[component];
+		const policy = COMPONENT_POLICIES[component];
 		const userPrompt = buildUserPrompt(component, ctx);
+		const cacheKey = buildCacheKey(`theory:${component}`, userPrompt);
+
+		const cached = await redis.get(cacheKey);
+		if (cached) {
+			try {
+				return JSON.parse(cached) as TheoryInteractionContent;
+			} catch {
+				// corrupted cache entry — proceed with API call
+			}
+		}
 
 		const response = await this.openai.chat.completions.create({
 			model: env.OPENAI_CONTENT_MODEL,
@@ -116,12 +145,15 @@ export class LessonTheoryInteractionsAIService {
 			temperature: 0.5,
 			response_format: { type: "json_object" },
 			messages: [
-				{ role: "system", content: systemPrompt },
+				{ role: "system", content: policy.systemPrompt },
 				{ role: "user", content: userPrompt },
 			],
 		});
 
 		const raw = response.choices[0]?.message?.content ?? "{}";
+
+		await redis.set(cacheKey, raw, "EX", env.CACHE_TTL);
+
 		return JSON.parse(raw) as TheoryInteractionContent;
 	}
 }

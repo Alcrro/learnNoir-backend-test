@@ -22,17 +22,13 @@ export class LessonActivityController {
 	create = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		const dto = parseCreateLessonActivityDTO(req.body);
 		const activity = await this.services.createLessonActivity.execute(dto);
-		return res.status(201).json({
-			success: true,
-			message: `Lesson activity ${activity.id} successfully created`,
-			activity,
-		});
+		return res.status(201).json({ data: activity });
 	});
 
 	findOne = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		const id = requireString(req.params.id, "Activity id is required");
 		const activity = await this.services.getLessonActivity.execute(id);
-		return res.status(200).json({ success: true, activity });
+		return res.status(200).json({ data: activity });
 	});
 
 	findByLesson = asyncHandlerMiddleware(async (req: Request, res: Response) => {
@@ -42,15 +38,13 @@ export class LessonActivityController {
 		);
 		const activities =
 			await this.services.getLessonActivitiesByLesson.execute(lessonId);
-		return res.status(200).json({ success: true, activities });
+		return res.status(200).json({ data: activities });
 	});
 
 	remove = asyncHandlerMiddleware(async (req: Request, res: Response) => {
 		const id = requireString(req.params.id, "Activity id is required");
 		await this.services.deleteLessonActivity.execute(id);
-		return res
-			.status(200)
-			.json({ success: true, message: `Lesson activity ${id} deleted` });
+		return res.status(200).json({ data: null });
 	});
 
 	reorder = asyncHandlerMiddleware(async (req: Request, res: Response) => {
@@ -65,7 +59,7 @@ export class LessonActivityController {
 			id,
 			newPosition,
 		);
-		return res.status(200).json({ success: true, message: "Activity reordered" });
+		return res.status(200).json({ data: null });
 	});
 }
 
