@@ -47,24 +47,6 @@ export class LessonRepositoryImpl implements ILessonRepository {
 		return this.mapRowsWithAuthors(data ?? []);
 	}
 
-	async listByModuleSlug(slug: string, language?: string | null): Promise<LessonEntity[]> {
-		const { data: moduleRow, error: moduleError } = await this.db
-			.from("modules")
-			.select("id")
-			.eq("slug", slug)
-			.maybeSingle();
-
-		if (moduleError) {
-			throw new DatabaseError(moduleError.message);
-		}
-
-		if (!moduleRow) {
-			return [];
-		}
-
-		return this.listByModuleId(moduleRow.id, language);
-	}
-
 	async getBySlug(slug: string): Promise<LessonEntity | null> {
 		const { data, error } = await this.db
 			.from("lessons")

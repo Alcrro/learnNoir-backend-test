@@ -4,6 +4,7 @@ import { GetUserProgressUseCase } from "../../application/useCases/getUserProgre
 import { UpsertLessonProgressUseCase } from "../../application/useCases/upsertLessonProgressUseCase";
 import { GetQuizBlockScoresUseCase } from "../../application/useCases/getQuizBlockScoresUseCase";
 import { UpsertQuizBlockScoreUseCase } from "../../application/useCases/upsertQuizBlockScoreUseCase";
+import { GetDueForReviewUseCase } from "../../application/useCases/getDueForReviewUseCase";
 import { ProgressRepoImpl } from "../db/ProgressRepoImpl";
 import { ProgressController } from "../../interfaces/controller/progress.controller";
 
@@ -17,5 +18,6 @@ export function progressControllerFactory(): ProgressController {
 		upsertLessonProgress: new UpsertLessonProgressUseCase(progressRepo),
 		getQuizBlockScores: new GetQuizBlockScoresUseCase(progressRepo),
 		upsertQuizBlockScore: new UpsertQuizBlockScoreUseCase(progressRepo),
+		getDueForReview: new GetDueForReviewUseCase(progressRepo),
 	});
 }

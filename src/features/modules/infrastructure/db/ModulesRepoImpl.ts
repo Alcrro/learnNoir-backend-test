@@ -34,6 +34,20 @@ export class ModulesRepoImpl implements ModulesRepository {
 
 		return ModulesMapper.toDomain(data);
 	}
+
+	async findBySlug(slug: string): Promise<ModulesEntity | null> {
+		const { data, error } = await this.db
+			.from("modules")
+			.select()
+			.eq("slug", slug)
+			.maybeSingle();
+
+		if (error) {
+			throw new Error(error.message);
+		}
+
+		return data ? ModulesMapper.toDomain(data) : null;
+	}
 	async findAll(): Promise<ModulesEntity[]> {
 		const { data, error } = await this.db.from("modules").select("*");
 

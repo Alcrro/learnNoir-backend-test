@@ -8,6 +8,13 @@ export interface IStripeService {
 		cancelUrl: string;
 	}): Promise<string>;
 
+	createCreatorCheckoutSession(params: {
+		userId: string;
+		userEmail?: string;
+		successUrl: string;
+		cancelUrl: string;
+	}): Promise<string>;
+
 	createOrgCheckoutSession(params: {
 		orgId: string;
 		userEmail?: string;

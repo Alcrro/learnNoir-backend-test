@@ -17,8 +17,12 @@ export const lessonPrompts = {
 	content: (topic: string) =>
 		`Write the main theory content for a lesson about the topic below. Use clear headings and structured explanations covering: what it is, how it works, key properties, and real-world relevance. Target an intermediate-level CS student. Max 600 words.\n\n<topic>${cap(topic, MAX_TOPIC)}</topic>`,
 
-	structuredBlocks: (topic: string) =>
-		`Generate a complete structured lesson about the topic below. Cover: the concept definition, step-by-step explanation, and time/space complexity if applicable.\n\n<topic>${cap(topic, MAX_TOPIC)}</topic>`,
+	structuredBlocks: (topic: string, lessonContext?: { title?: string; description?: string }) => {
+		const contextBlock = lessonContext
+			? `\n\n<lesson_title>${cap(lessonContext.title ?? "", MAX_TOPIC)}</lesson_title>${lessonContext.description ? `\n<lesson_description>${cap(lessonContext.description, MAX_TEXT)}</lesson_description>` : ""}`
+			: "";
+		return `Generate a complete structured lesson block strictly about the topic and lesson context below. Do not introduce unrelated concepts. Cover: the concept definition, step-by-step explanation, and time/space complexity if applicable.${contextBlock}\n\n<topic>${cap(topic, MAX_TEXT)}</topic>`;
+	},
 
 	improveText: (text: string, context?: string) =>
 		context

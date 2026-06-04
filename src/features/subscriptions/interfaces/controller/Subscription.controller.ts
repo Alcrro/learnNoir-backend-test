@@ -1,8 +1,11 @@
 import type { Request, Response } from "express";
 import type { GetActiveSubscriptionUseCase } from "../../application/useCases/GetActiveSubscription.usecase.ts";
+import type { GetCreatorSubscriptionUseCase } from "../../application/useCases/GetCreatorSubscription.usecase.ts";
 import type { UpsertSubscriptionUseCase } from "../../application/useCases/UpsertSubscription.usecase.ts";
 import type { UpsertOrgSubscriptionUseCase } from "../../application/useCases/UpsertOrgSubscription.usecase.ts";
+import type { UpsertCreatorSubscriptionUseCase } from "../../application/useCases/UpsertCreatorSubscription.usecase.ts";
 import type { CreateCheckoutSessionUseCase } from "../../application/useCases/CreateCheckoutSession.usecase.ts";
+import type { CreateCreatorCheckoutSessionUseCase } from "../../application/useCases/CreateCreatorCheckoutSession.usecase.ts";
 import type { StripeService } from "../../infrastructure/stripe/StripeService.ts";
 import { env } from "../../../../config/env.ts";
 
@@ -11,9 +14,12 @@ const FRONTEND_URL = env.CORS_ORIGIN;
 export class SubscriptionController {
 	constructor(
 		private readonly getActiveSubscription: GetActiveSubscriptionUseCase,
+		private readonly getCreatorSubscription: GetCreatorSubscriptionUseCase,
 		private readonly upsertSubscription: UpsertSubscriptionUseCase,
 		private readonly upsertOrgSubscription: UpsertOrgSubscriptionUseCase,
+		private readonly upsertCreatorSubscription: UpsertCreatorSubscriptionUseCase,
 		private readonly createCheckoutSession: CreateCheckoutSessionUseCase,
+		private readonly createCreatorCheckoutSession: CreateCreatorCheckoutSessionUseCase,
 		private readonly stripeService: StripeService,
 	) {}
 
@@ -24,8 +30,35 @@ export class SubscriptionController {
 			return;
 		}
 
-		const plan = await this.getActiveSubscription.execute(userId);
-		res.json({ data: { plan } });
+		const [plan, isCreator] = await Promise.all([
+			this.getActiveSubscription.execute(userId),
+			this.getCreatorSubscription.execute(userId),
+		]);
+
+		res.json({ data: { plan, isCreator } });
+	};
+
+	createCreatorCheckoutSessionHandler = async (req: Request, res: Response): Promise<void> => {
+		const userId = req.userId;
+		if (!userId) {
+			res.status(401).json({ error: "Unauthorized" });
+			return;
+		}
+
+		if (!env.STRIPE_SECRET_KEY || !env.STRIPE_CREATOR_PRICE_ID) {
+			res.status(503).json({ error: "Stripe not configured" });
+			return;
+		}
+
+		const { cancelPath = "/" } = req.body as { cancelPath?: string };
+
+		const url = await this.createCreatorCheckoutSession.execute({
+			userId,
+			successUrl: `${FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}&plan=creator`,
+			cancelUrl: `${FRONTEND_URL}${cancelPath}`,
+		});
+
+		res.json({ data: { url } });
 	};
 
 	createCheckoutSessionHandler = async (req: Request, res: Response): Promise<void> => {
@@ -87,10 +120,13 @@ export class SubscriptionController {
 			};
 
 			const orgId = session.metadata?.["orgId"];
+			const plan = session.metadata?.["plan"];
 			const userId = session.client_reference_id;
 
 			if (orgId) {
 				await this.upsertOrgSubscription.execute(orgId, "pro");
+			} else if (userId && plan === "creator") {
+				await this.upsertCreatorSubscription.execute(userId);
 			} else if (userId) {
 				await this.upsertSubscription.execute(userId, "pro");
 			}

@@ -1208,6 +1208,38 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           created_at: string
@@ -1331,10 +1363,13 @@ export type Database = {
           created_at: string | null
           id: string
           last_activity_at: string | null
+          last_reviewed_at: string | null
           lesson_id: string
+          next_review_at: string | null
           output_score: number
           quiz_score: number
           read_score: number
+          review_count: number
           status: Database["public"]["Enums"]["progress_status"]
           updated_at: string | null
           user_id: string
@@ -1344,10 +1379,13 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_activity_at?: string | null
+          last_reviewed_at?: string | null
           lesson_id: string
+          next_review_at?: string | null
           output_score?: number
           quiz_score?: number
           read_score?: number
+          review_count?: number
           status?: Database["public"]["Enums"]["progress_status"]
           updated_at?: string | null
           user_id: string
@@ -1357,10 +1395,13 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_activity_at?: string | null
+          last_reviewed_at?: string | null
           lesson_id?: string
+          next_review_at?: string | null
           output_score?: number
           quiz_score?: number
           read_score?: number
+          review_count?: number
           status?: Database["public"]["Enums"]["progress_status"]
           updated_at?: string | null
           user_id?: string

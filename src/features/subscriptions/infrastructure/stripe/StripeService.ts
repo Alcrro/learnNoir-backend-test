@@ -36,6 +36,28 @@ export class StripeService implements IStripeService {
 		return session.url!;
 	}
 
+	async createCreatorCheckoutSession(params: {
+		userId: string;
+		userEmail?: string;
+		successUrl: string;
+		cancelUrl: string;
+	}): Promise<string> {
+		const session = await this.stripe.checkout.sessions.create({
+			mode: "subscription",
+			line_items: [{ price: env.STRIPE_CREATOR_PRICE_ID, quantity: 1 }],
+			client_reference_id: params.userId,
+			...(params.userEmail ? { customer_email: params.userEmail } : {}),
+			success_url: params.successUrl,
+			cancel_url: params.cancelUrl,
+			metadata: { plan: "creator" },
+			subscription_data: {
+				metadata: { userId: params.userId, plan: "creator" },
+			},
+		});
+
+		return session.url!;
+	}
+
 	async createOrgCheckoutSession(params: {
 		orgId: string;
 		userEmail?: string;

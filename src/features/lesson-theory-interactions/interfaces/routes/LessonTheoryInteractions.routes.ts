@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createLessonTheoryInteractionsController } from "../../infrastructure/factories/LessonTheoryInteractionsFactory.ts";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware.ts";
 import { requireProMiddleware } from "../../../../utils/requireProMiddleware.ts";
+import { requireCreatorMiddleware } from "../../../../utils/requireCreatorMiddleware.ts";
 import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware.ts";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware.ts";
 
@@ -47,6 +48,7 @@ router.post(
 	"/:component/generate",
 	requireAuthMiddleware,
 	roleRequiredMiddleware(["teacher", "admin"]),
+	requireCreatorMiddleware,
 	asyncHandlerMiddleware(controller.generate),
 );
 

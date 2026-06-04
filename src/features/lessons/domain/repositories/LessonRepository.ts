@@ -21,8 +21,14 @@ export interface ILessonRepository {
 	publish(id: string): Promise<void>;
 
 	list(): Promise<LessonEntity[]>;
-	listByModuleId(moduleId: string, language?: string | null): Promise<LessonEntity[]>;
-	listByModuleSlug(slug: string, language?: string | null): Promise<LessonEntity[]>;
+	listByModuleId(
+		moduleId: string,
+		language?: string | null,
+	): Promise<LessonEntity[]>;
 
-	logEdit(lessonId: string, editorId: string, changes: LessonEditChange[]): Promise<void>;
+	logEdit(
+		lessonId: string,
+		editorId: string,
+		changes: LessonEditChange[],
+	): Promise<void>;
 }

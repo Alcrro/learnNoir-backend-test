@@ -134,14 +134,12 @@ async function main() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: SEED_EMAIL, password: SEED_PASS }),
   });
-  const loginJson = (await loginRes.json()) as {
-    data?: { accessToken?: string };
-  };
+  await loginRes.json();
   const rawCookies = loginRes.headers.getSetCookie?.() ?? [];
-  // Extract only the name=value part from each Set-Cookie header
   const cookieHeader = rawCookies.map((c) => c.split(";")[0]).join("; ");
 
-  const token = loginJson.data?.accessToken ?? "";
+  const accessTokenCookie = rawCookies.find((c) => c.startsWith("accessToken=")) ?? "";
+  const token = accessTokenCookie.split("=").slice(1).join("=").split(";")[0] ?? "";
   const payload = JSON.parse(Buffer.from(token.split(".")[1]!, "base64").toString());
   const userId: string = payload.sub;
   ok("Logged in", userId);
@@ -213,7 +211,7 @@ async function main() {
   console.log("\n── Lesson ───────────────────────────────────────────────");
 
   const existingLesson = await supabaseGet(
-    `lessons?module_id=eq.${sortingModuleId}&slug=eq.bubble-sort-de-la-teorie-la-practic&select=id`,
+    `lessons?module_id=eq.${sortingModuleId}&position=eq.1&select=id`,
   );
   let lessonId: string;
   if (existingLesson.length > 0) {
@@ -240,6 +238,75 @@ async function main() {
   // ── 6. Lesson Blocks ──────────────────────────────────────────────────────
   console.log("\n── Lesson Blocks ────────────────────────────────────────");
 
+  const bubbleSortContent = [
+    {
+      type: "concept",
+      title: "Ce este Bubble Sort?",
+      sections: [
+        {
+          label: "Principiu de funcționare",
+          text: "Bubble Sort parcurge lista în mod repetat, compară elementele adiacente și le interschimbă dacă sunt în ordinea greșită. La fiecare trecere, cel mai mare element nesortат urcă la poziția corectă — similar cu bulele de aer care urcă la suprafață.",
+        },
+        {
+          label: "Optimizare",
+          text: "Varianta optimizată folosește un flag swapped: dacă o trecere completă nu produce nicio interschimbare, lista este deja sortată și algoritmul se oprește anticipat.",
+        },
+      ],
+    },
+    {
+      type: "steps",
+      steps: [
+        {
+          title: "Inițializare",
+          content: [{ type: "paragraph", text: "Pornești cu n = lungimea array-ului. Fiecare trecere exterioară garantează că cel mai mare element nesortат ajunge la finalul porțiunii nesortate." }],
+        },
+        {
+          title: "Comparare adiacentă",
+          content: [{ type: "paragraph", text: "Compari arr[j] cu arr[j+1]. Dacă arr[j] > arr[j+1], interschimbi elementele și marchezi swapped = true." }],
+        },
+        {
+          title: "Propagare",
+          content: [{ type: "paragraph", text: "Ultimele i elemente sunt deja la locul lor după i treceri — bucla internă rulează doar până la n - i - 1." }],
+        },
+        {
+          title: "Terminare anticipată",
+          content: [{ type: "paragraph", text: "Dacă swapped rămâne false după o trecere completă, array-ul este sortat și algoritmul se oprește înainte de a mai face treceri inutile." }],
+        },
+      ],
+    },
+    {
+      type: "complexity",
+      space: "O(1)",
+      cases: [
+        {
+          type: "best",
+          time: "O(n)",
+          description: "Array deja sortat — o singură trecere fără interschimbări (cu optimizarea swapped).",
+        },
+        {
+          type: "average",
+          time: "O(n²)",
+          description: "Elemente în ordine aleatoare — aproximativ n²/4 comparații și interschimbări.",
+        },
+        {
+          type: "worst",
+          time: "O(n²)",
+          description: "Array sortat invers — se fac n*(n-1)/2 comparații și interschimbări.",
+        },
+      ],
+    },
+    {
+      type: "think",
+      question: "De ce se numește 'Bubble Sort'? Ce element 'urcă' la suprafață la fiecare trecere?",
+      reveal: "La fiecare trecere, cel mai mare element din porțiunea nesortată ajunge la ultima poziție disponibilă — exact cum o bulă de aer urcă la suprafața apei.",
+    },
+    {
+      type: "code",
+      language: "python",
+      code: "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(0, n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n                swapped = True\n        if not swapped:\n            break\n    return arr",
+    },
+  ];
+
   const existingBlocks = await supabaseGet(
     `lesson_blocks?lesson_id=eq.${lessonId}&select=id,type,engine&order=position`,
   );
@@ -248,29 +315,13 @@ async function main() {
 
   if (existingBlocks.length >= 4) {
     [block1Id, block2Id, block3Id, block4Id] = existingBlocks.map((b) => b.id);
-    console.log(`  ~ All 4 blocks already exist`);
+    await supabasePatch("lesson_blocks", `id=eq.${block1Id}`, { data: { content: bubbleSortContent } });
+    ok("Block 1 — content updated with rich nodes", block1Id);
   } else {
     const b1 = await post("/lessons-block", {
       lessonId,
       type: "content",
-      data: {
-        content: [
-          { nodeType: "heading", level: 2, text: "Ce este Bubble Sort?" },
-          {
-            nodeType: "paragraph",
-            text: "Bubble Sort este unul dintre cei mai simpli algoritmi de sortare. Parcurge lista în mod repetat, compară elementele adiacente și le interschimbă dacă sunt în ordinea greșită.",
-          },
-          {
-            nodeType: "paragraph",
-            text: "Complexitate timp: O(n²) în cazul mediu și în cel mai rău caz. Complexitate spațiu: O(1) — sortare in-place.",
-          },
-          {
-            nodeType: "code",
-            language: "python",
-            code: "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        swapped = False\n        for j in range(0, n - i - 1):\n            if arr[j] > arr[j + 1]:\n                arr[j], arr[j + 1] = arr[j + 1], arr[j]\n                swapped = True\n        if not swapped:\n            break\n    return arr",
-          },
-        ],
-      },
+      data: { content: bubbleSortContent },
     }) as { createdLessonBlock?: { id?: string } };
     block1Id = b1.createdLessonBlock?.id!;
     ok("Block 1 — content (teorie)", block1Id);

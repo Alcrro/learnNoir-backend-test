@@ -6,6 +6,7 @@ import type { GetUserProgressUseCase } from "../../application/useCases/getUserP
 import type { UpsertLessonProgressUseCase } from "../../application/useCases/upsertLessonProgressUseCase";
 import type { GetQuizBlockScoresUseCase } from "../../application/useCases/getQuizBlockScoresUseCase";
 import type { UpsertQuizBlockScoreUseCase } from "../../application/useCases/upsertQuizBlockScoreUseCase";
+import type { GetDueForReviewUseCase } from "../../application/useCases/getDueForReviewUseCase";
 import type { UpsertProgressInput } from "../../domain/types/LessonProgress.type";
 
 export class ProgressController {
@@ -16,6 +17,7 @@ export class ProgressController {
 			upsertLessonProgress: UpsertLessonProgressUseCase;
 			getQuizBlockScores: GetQuizBlockScoresUseCase;
 			upsertQuizBlockScore: UpsertQuizBlockScoreUseCase;
+			getDueForReview: GetDueForReviewUseCase;
 		},
 	) {}
 
@@ -29,6 +31,18 @@ export class ProgressController {
 			const progress = await this.services.getUserProgress.execute(userId);
 
 			return res.status(200).json({ data: progress });
+		},
+	);
+
+	// GET /progress/due-for-review
+	// Returns completed lessons whose next_review_at is due, ordered by most overdue first.
+	getDueForReview = asyncHandlerMiddleware(
+		async (req: RequestWithUserId, res: Response) => {
+			const userId = req.userId;
+			if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+			const items = await this.services.getDueForReview.execute(userId);
+			return res.status(200).json({ data: items });
 		},
 	);
 

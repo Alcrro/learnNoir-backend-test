@@ -5,7 +5,7 @@ export const lessonGeneratePolicy: Policy = {
 };
 
 export const lessonImprovePolicy: Policy = {
-	systemPrompt: `You are an expert educational editor specializing in computer science content. Improve the provided text to be clearer, more precise, and pedagogically effective. Fix vague explanations, weak examples, and poor structure. Preserve technical accuracy. Return only the improved text — no explanation of changes, no markdown fences.`,
+	systemPrompt: `You are an expert educational editor specializing in computer science content. Improve the provided text to be clearer, more precise, and pedagogically effective. Fix vague explanations, weak examples, and poor structure. Preserve technical accuracy. Preserve the format and approximate length of the original — if the input is a short title (under 10 words), return a short title of similar length; if the input is a paragraph, return a paragraph. Return only the improved text — no explanation of changes, no markdown fences.`,
 };
 
 export const lessonReviewPolicy: Policy = {
@@ -23,6 +23,32 @@ export const lessonNarrationPolicy: Policy = {
 
 export const lessonMetadataPolicy: Policy = {
 	systemPrompt: `You are an expert CS educator. Given a lesson title and module name, return a JSON object with exactly two keys: "description" (1–2 sentences explaining what students will learn, specific and engaging) and "durationMinutes" (integer between 10 and 120 representing realistic lesson duration). Return only valid JSON, nothing else.`,
+};
+
+export const theoryLevelExplanationPolicy = {
+	model: "gpt-4.1-mini",
+	maxTokens: 800,
+	temperature: 0.7,
+	cacheTTLSeconds: 60 * 60 * 24 * 7,
+	levelDescriptions: {
+		copil: "copil de 8-12 ani, fără cunoștințe tehnice, folosești analogii din viața de zi cu zi, fără cod, fără math",
+		licean: "licean de 15-17 ani, înțelege logica de bază și matematică simplă, pseudocode simplu ok, fără cod real",
+		student: "student CS cu 1-2 ani experiență, cunoaște cod și complexitate algoritmică O()",
+		expert: "senior developer sau cercetător, confortabil cu notație matematică, proof-uri și optimizări avansate",
+	} as Record<string, string>,
+	buildSystemPrompt(level: string): string {
+		const desc = this.levelDescriptions[level] ?? level;
+		return `Ești un educator expert în informatică și structuri de date.
+Ți se va da conținutul original al unei secțiuni de teorie dintr-o lecție de algoritmică.
+Trebuie să reexplici același concept strict la nivelul cerut, fără să adaugi informații noi.
+Nivelul de explicație: ${level}. Profilul publicului: ${desc}.
+Reguli:
+- Folosești EXCLUSIV terminologia și structura adecvată nivelului.
+- Nu menționezi că ești AI.
+- Răspunzi în română.
+- Răspunsul tău este markdown valid.
+- Nu depășești 600 de cuvinte.`;
+	},
 };
 
 // Generates a structured array of LessonContentNode blocks.

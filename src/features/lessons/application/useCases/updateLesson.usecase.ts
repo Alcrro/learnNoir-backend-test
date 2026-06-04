@@ -24,9 +24,7 @@ export class UpdateLessonUseCase {
 		}
 
 		const nextTitle = lessonPatch.title ?? currentLesson.title;
-		const nextSlug =
-			lessonPatch.slug ??
-			(lessonPatch.title ? createLessonSlug(lessonPatch.title) : currentLesson.slug);
+		const nextSlug = lessonPatch.slug ?? currentLesson.slug;
 
 		const updatedLesson = new Lesson({
 			id: currentLesson.id,
@@ -68,12 +66,4 @@ export class UpdateLessonUseCase {
 
 		return mapToDto(updatedLesson);
 	}
-}
-
-function createLessonSlug(title: string) {
-	return title
-		.trim()
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-+|-+$/g, "");
 }

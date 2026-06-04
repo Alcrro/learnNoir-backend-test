@@ -17,6 +17,9 @@ export type LessonProgress = {
 	lastActivityAt: string | null;
 	createdAt: string | null;
 	updatedAt: string | null;
+	nextReviewAt: string | null;
+	lastReviewedAt: string | null;
+	reviewCount: number;
 };
 
 // LessonProgress joined with lesson title, slug and module name.

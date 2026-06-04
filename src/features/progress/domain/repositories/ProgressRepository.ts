@@ -4,6 +4,7 @@ import type {
 	UpsertProgressInput,
 	QuizBlockScore,
 } from "../types/LessonProgress.type";
+import type { LessonWithReview } from "../../../../../../shared/src/lesson-review.ts";
 
 export interface ProgressRepository {
 	// Returns the row for this user+lesson pair, or null if it does not exist yet.
@@ -20,4 +21,7 @@ export interface ProgressRepository {
 
 	// Upserts a quiz block score (best-score semantics).
 	upsertQuizBlockScore(userId: string, blockId: string, score: number): Promise<QuizBlockScore>;
+
+	// Returns completed lessons whose next_review_at is due, ordered by most overdue first.
+	getDueForReview(userId: string): Promise<LessonWithReview[]>;
 }

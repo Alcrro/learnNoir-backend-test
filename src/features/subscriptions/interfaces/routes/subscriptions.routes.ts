@@ -14,6 +14,12 @@ router.post(
 	asyncHandlerMiddleware(controller.createCheckoutSessionHandler),
 );
 
+router.post(
+	"/create-checkout-session-creator",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.createCreatorCheckoutSessionHandler),
+);
+
 // Stripe sends raw body — must NOT be parsed by express.json()
 router.post(
 	"/webhook",

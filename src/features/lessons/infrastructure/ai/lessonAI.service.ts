@@ -49,8 +49,11 @@ export class LessonAIService {
 
 	// Generates a structured array of LessonContentNode blocks for a topic.
 	// These can be directly stored as a ContentLessonBlock.data.content array.
-	async generateStructuredBlocks(topic: string): Promise<LessonContentNode[]> {
-		const prompt = lessonPrompts.structuredBlocks(topic);
+	async generateStructuredBlocks(
+		topic: string,
+		lessonContext?: { title?: string; description?: string },
+	): Promise<LessonContentNode[]> {
+		const prompt = lessonPrompts.structuredBlocks(topic, lessonContext);
 
 		const raw = await this.callJson(
 			lessonStructuredContentPolicy.systemPrompt,

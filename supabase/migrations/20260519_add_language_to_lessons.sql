@@ -1,2 +1,2 @@
 ALTER TABLE lessons
-  ADD COLUMN language text CHECK (language IN ('python', 'javascript', 'java', 'cpp'));
+  ADD COLUMN IF NOT EXISTS language text CHECK (language IN ('python', 'javascript', 'java', 'cpp'));

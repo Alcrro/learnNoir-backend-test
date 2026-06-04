@@ -61,6 +61,7 @@ export const env = {
 	// ── Stripe ────────────────────────────────────────────────────────────────
 	STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "",
 	STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID ?? "",
+	STRIPE_CREATOR_PRICE_ID: process.env.STRIPE_CREATOR_PRICE_ID ?? "",
 	STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET ?? "",
 
 	// ── Redis / Cache ─────────────────────────────────────────────────────────

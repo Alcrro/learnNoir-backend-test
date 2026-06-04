@@ -45,7 +45,7 @@ export function lessonControllerFactory(): LessonController {
 		getTeacherStatsUseCase: new GetTeacherStatsUseCase(lessonQueryRepo),
 		getTeacherStudentsUseCase: new GetTeacherStudentsUseCase(lessonQueryRepo),
 		getLessonHistoryUseCase: new GetLessonHistoryUseCase(lessonQueryRepo),
-		generateBlocksFromTextUseCase: new GenerateBlocksFromTextUseCase(aiService, blockRepoImpl),
+		generateBlocksFromTextUseCase: new GenerateBlocksFromTextUseCase(aiService, blockRepoImpl, lessonRepo),
 	};
 	return new LessonController(lessonServices);
 }

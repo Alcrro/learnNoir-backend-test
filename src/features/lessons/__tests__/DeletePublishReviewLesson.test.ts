@@ -14,7 +14,6 @@ const makeLessonRepo = () => ({
 	review: vi.fn(),
 	list: vi.fn(),
 	listByModuleId: vi.fn(),
-	listByModuleSlug: vi.fn(),
 	getBySlug: vi.fn(),
 	logEdit: vi.fn(),
 });

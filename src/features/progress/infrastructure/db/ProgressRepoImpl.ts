@@ -8,6 +8,8 @@ import type {
 	UpsertProgressInput,
 	QuizBlockScore,
 } from "../../domain/types/LessonProgress.type";
+import { computeNextReviewDate, buildSRInfo } from "../../domain/services/spacedRepetitionService.ts";
+import type { LessonWithReview } from "../../../../../../shared/src/lesson-review.ts";
 
 type ProgressRow = Database["public"]["Tables"]["user_lesson_progress"]["Row"];
 
@@ -26,6 +28,9 @@ function toDomain(row: ProgressRow): LessonProgress {
 		lastActivityAt: row.last_activity_at ?? null,
 		createdAt: row.created_at ?? null,
 		updatedAt: row.updated_at ?? null,
+		nextReviewAt: row.next_review_at ?? null,
+		lastReviewedAt: row.last_reviewed_at ?? null,
+		reviewCount: row.review_count ?? 0,
 	};
 }
 
@@ -101,7 +106,28 @@ export class ProgressRepoImpl implements ProgressRepository {
 		const requestedStatus = input.status ?? existing?.status ?? "in_progress";
 		const status = existing?.status === "completed" ? "completed" : requestedStatus;
 
-		const now = new Date().toISOString();
+		const now = new Date();
+		const nowIso = now.toISOString();
+
+		// Spaced repetition: compute SR fields based on transition.
+		const isFirstCompletion = requestedStatus === "completed" && existing?.status !== "completed";
+		const isReview =
+			existing?.status === "completed" &&
+			existing.nextReviewAt !== null &&
+			new Date(existing.nextReviewAt) <= now;
+
+		let nextReviewAt = existing?.nextReviewAt ?? null;
+		let lastReviewedAt = existing?.lastReviewedAt ?? null;
+		let reviewCount = existing?.reviewCount ?? 0;
+
+		if (isFirstCompletion) {
+			reviewCount = 0;
+			nextReviewAt = computeNextReviewDate(0, now).toISOString();
+		} else if (isReview) {
+			reviewCount = reviewCount + 1;
+			lastReviewedAt = nowIso;
+			nextReviewAt = computeNextReviewDate(reviewCount, now).toISOString();
+		}
 
 		const { data, error } = await this.db
 			.from("user_lesson_progress")
@@ -115,8 +141,11 @@ export class ProgressRepoImpl implements ProgressRepository {
 					quiz_score: quizScore / 100,
 					read_score: readScore / 100,
 					output_score: outputScore / 100,
-					last_activity_at: now,
-					updated_at: now,
+					last_activity_at: nowIso,
+					updated_at: nowIso,
+					next_review_at: nextReviewAt,
+					last_reviewed_at: lastReviewedAt,
+					review_count: reviewCount,
 				},
 				// Supabase upsert conflict resolution — match on the composite natural key.
 				{ onConflict: "user_id,lesson_id" },
@@ -127,6 +156,32 @@ export class ProgressRepoImpl implements ProgressRepository {
 		if (error) throw new DatabaseError(error.message);
 
 		return toDomain(data);
+	}
+
+	async getDueForReview(userId: string): Promise<LessonWithReview[]> {
+		const now = new Date().toISOString();
+
+		const { data, error } = await this.db
+			.from("user_lesson_progress")
+			.select(`*, lessons!lesson_id ( id, title, slug )`)
+			.eq("user_id", userId)
+			.eq("status", "completed")
+			.not("next_review_at", "is", null)
+			.lte("next_review_at", now)
+			.order("next_review_at", { ascending: true });
+
+		if (error) throw new DatabaseError(error.message);
+
+		return (data ?? []).map((row) => {
+			const lesson = row.lessons as { id: string; title: string; slug: string } | null;
+			const progress = toDomain(row);
+			return {
+				lessonId: lesson?.id ?? row.lesson_id,
+				lessonSlug: lesson?.slug ?? "",
+				lessonTitle: lesson?.title ?? "",
+				sr: buildSRInfo(progress),
+			};
+		});
 	}
 
 	async getQuizBlockScores(userId: string, lessonId: string): Promise<QuizBlockScore[]> {
