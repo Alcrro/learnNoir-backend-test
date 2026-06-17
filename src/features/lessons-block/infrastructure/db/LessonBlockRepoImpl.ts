@@ -7,6 +7,7 @@ import {
 import type { LessonBlockEntity } from "../../domain/entities/LessonBlockEntity";
 import type { LessonBlockRepository } from "../../domain/repositories/LessonBlockRepository";
 import { LessonBlockMapper } from "../mapper/LessonBlock.mapper";
+import type { LessonBlockJson } from "../types/lessonBlockDatabase.types";
 import type { Database } from "../../../../database.types";
 
 export class LessonBlockRepoImpl implements LessonBlockRepository {
@@ -116,6 +117,16 @@ export class LessonBlockRepoImpl implements LessonBlockRepository {
 
 		blocks.splice(newPosition, 0, blockToMove);
 		await this.persistOrderedBlocks(blocks);
+	}
+
+	async updateBlockData(id: string, data: Record<string, unknown>): Promise<void> {
+		const { error, count } = await this.db
+			.from("lesson_blocks")
+			.update({ data: data as LessonBlockJson }, { count: "exact" })
+			.eq("id", id);
+
+		if (error) throw new DatabaseError(error.message);
+		if (!count) throw new NotFoundError("Lesson block not found");
 	}
 
 	private async persistOrderedBlocks(blocks: LessonBlockEntity[]) {

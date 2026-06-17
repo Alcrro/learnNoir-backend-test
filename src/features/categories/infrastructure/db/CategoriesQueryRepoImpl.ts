@@ -39,7 +39,7 @@ export class CategoriesQueryRepoImpl implements CategoriesQueryRepository {
 
 		const { data: mods, error: modErr } = await this.db
 			.from("modules")
-			.select("id, name, slug, position, category_id")
+			.select("id, name, slug, position, category_id, importance")
 			.in("category_id", categoryIds)
 			.order("position");
 
@@ -75,6 +75,7 @@ export class CategoriesQueryRepoImpl implements CategoriesQueryRepository {
 					position: m.position ?? 0,
 					lessonCount: mLessons.length,
 					estimatedHours: Math.round(totalSecs / 360) / 10,
+					importance: m.importance,
 				};
 			});
 

@@ -20,6 +20,7 @@ import lessonVideoRoutes from "./features/lesson-video/interfaces/routes/lessonV
 import lessonVersionsRoutes from "./features/lesson-versions/interfaces/routes/lessonVersion.routes";
 import lessonTheoryInteractionsRoutes from "./features/lesson-theory-interactions/interfaces/routes/LessonTheoryInteractions.routes";
 import theoryLevelRoutes from "./features/lesson-theory-levels/interfaces/routes/TheoryLevelExplanation.routes";
+import lessonTranslationRoutes from "./features/lesson-translation/interfaces/routes/lessonTranslation.routes";
 import { lessonExercisesRouter, exercisesRouter } from "./features/exercises/interfaces/routes/exercise.routes";
 import subscriptionsRoutes from "./features/subscriptions/interfaces/routes/subscriptions.routes";
 import organizationsRoutes from "./features/organizations/interfaces/routes/organizations.routes";
@@ -88,6 +89,7 @@ app.use(
 ); // Theory interaction components (V2 learning layout)
 app.use("/api/lessons/:lessonId/exercises", lessonExercisesRouter); // Coding exercises (LeetCode-style) per lesson
 app.use("/api/lessons/:lessonId/blocks/:blockId/explanations", theoryLevelRoutes); // Theory level explanations (Explică-mi altfel)
+app.use("/api/lessons/:lessonId/translate", lessonTranslationRoutes); // AI-powered lesson content translation
 app.use("/api/exercises", exercisesRouter); // Exercise run/submit endpoints
 app.use("/api/auth", authRoutes); // Login, register, token refresh, logout
 app.use("/api/profiles", profilesRoutes); // User profile management

@@ -5,6 +5,7 @@ export class CreateCreatorCheckoutSessionUseCase {
 
 	async execute(params: {
 		userId: string;
+		stripeCustomerId?: string;
 		userEmail?: string;
 		successUrl: string;
 		cancelUrl: string;

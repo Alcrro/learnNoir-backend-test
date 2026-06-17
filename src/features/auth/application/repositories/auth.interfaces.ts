@@ -53,4 +53,8 @@ export interface IAuthRepository {
 	 * Logs out the current user.
 	 */
 	logout(): Promise<void>;
+
+	forgotPassword(email: string, redirectTo: string): Promise<void>;
+
+	resetPassword(code: string, newPassword: string): Promise<void>;
 }

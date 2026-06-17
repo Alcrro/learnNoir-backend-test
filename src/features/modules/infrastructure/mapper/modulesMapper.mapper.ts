@@ -13,6 +13,7 @@ export class ModulesMapper {
 			category_id: modules.getCategoryId(),
 			created_at: modules.created_at,
 			updated_at: new Date().toISOString(),
+			importance: "normal",
 		};
 	}
 

@@ -11,13 +11,13 @@ const getActiveSubscription = new GetActiveSubscriptionUseCase(subscriptionRepo,
 const SUB_CACHE_TTL = 60;
 
 export async function checkIsPro(userId: string): Promise<boolean> {
-	const cacheKey = `sub:pro:${userId}`;
+	const cacheKey = `sub:is_pro:${userId}`;
 	const cached = await redis.get(cacheKey);
 
-	if (cached !== null) return cached === "pro";
+	if (cached !== null) return cached === "1";
 
-	const plan = await getActiveSubscription.execute(userId);
-	await redis.set(cacheKey, plan ?? "free", "EX", SUB_CACHE_TTL);
+	const { pro } = await getActiveSubscription.execute(userId);
+	await redis.set(cacheKey, pro ? "1" : "0", "EX", SUB_CACHE_TTL);
 
-	return plan === "pro";
+	return pro;
 }

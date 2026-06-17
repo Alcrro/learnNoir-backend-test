@@ -3,6 +3,8 @@ import { env } from "../../../../config/env";
 import { RegisterUserUseCase } from "../../application/useCases/registerUser.usecase";
 import { AuthWithCredentials } from "../../application/useCases/authWithCredentials.usecase";
 import { RefreshSessionUseCase } from "../../application/useCases/refreshSession.usecase";
+import { ForgotPasswordUseCase } from "../../application/useCases/forgotPassword.usecase";
+import { ResetPasswordUseCase } from "../../application/useCases/resetPassword.usecase";
 import type { role } from "../../../profiles/application/dto/ProfileDTO.type";
 
 export type RequestWithUserId = Request & { userId?: string; userRole?: role };
@@ -12,6 +14,8 @@ export class AuthController {
 			registerUseCase: RegisterUserUseCase;
 			authUseCase: AuthWithCredentials;
 			refreshUseCase: RefreshSessionUseCase;
+			forgotPasswordUseCase: ForgotPasswordUseCase;
+			resetPasswordUseCase: ResetPasswordUseCase;
 		},
 	) {}
 
@@ -101,6 +105,21 @@ export class AuthController {
 		res.clearCookie("accessToken");
 		res.clearCookie("refreshToken");
 
+		return res.status(200).json({ data: null });
+	};
+
+	forgotPassword = async (req: Request, res: Response) => {
+		const { email } = req.body as { email?: string };
+		if (!email) return res.status(400).json({ error: "Email required" });
+		const redirectTo = `${env.CORS_ORIGIN}/auth/reset-password`;
+		await this.authServices.forgotPasswordUseCase.execute(email, redirectTo);
+		return res.status(200).json({ data: null });
+	};
+
+	resetPassword = async (req: Request, res: Response) => {
+		const { code, newPassword } = req.body as { code?: string; newPassword?: string };
+		if (!code || !newPassword) return res.status(400).json({ error: "Code and new password required" });
+		await this.authServices.resetPasswordUseCase.execute(code, newPassword);
 		return res.status(200).json({ data: null });
 	};
 }

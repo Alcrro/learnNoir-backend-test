@@ -1,13 +1,15 @@
 import type { NextFunction, Request, Response } from "express";
 import { supabase } from "../core/db/supabaseClient.ts";
 import { redis } from "../core/cache/redis.ts";
-import { CreatorSubscriptionRepoImpl } from "../features/subscriptions/infrastructure/db/CreatorSubscriptionRepoImpl.ts";
-import { GetCreatorSubscriptionUseCase } from "../features/subscriptions/application/useCases/GetCreatorSubscription.usecase.ts";
+import { SubscriptionRepoImpl } from "../features/subscriptions/infrastructure/db/SubscriptionRepoImpl.ts";
+import { OrganizationSubscriptionRepoImpl } from "../features/subscriptions/infrastructure/db/OrganizationSubscriptionRepoImpl.ts";
+import { GetActiveSubscriptionUseCase } from "../features/subscriptions/application/useCases/GetActiveSubscription.usecase.ts";
 
-const creatorRepo = new CreatorSubscriptionRepoImpl(supabase);
-const getCreatorSubscription = new GetCreatorSubscriptionUseCase(creatorRepo);
+const subscriptionRepo = new SubscriptionRepoImpl(supabase);
+const orgSubRepo = new OrganizationSubscriptionRepoImpl(supabase);
+const getActiveSubscription = new GetActiveSubscriptionUseCase(subscriptionRepo, orgSubRepo);
 
-const CREATOR_CACHE_TTL = 60; // seconds
+const CREATOR_CACHE_TTL = 60;
 
 export const requireCreatorMiddleware = async (
 	req: Request,
@@ -21,23 +23,23 @@ export const requireCreatorMiddleware = async (
 		return;
 	}
 
-	const cacheKey = `sub:creator:${userId}`;
+	const cacheKey = `sub:is_creator:${userId}`;
 	const cached = await redis.get(cacheKey);
 
 	if (cached !== null) {
 		if (cached === "1") {
 			next();
 		} else {
-			res.status(402).json({ error: "Creator plan required" });
+			res.status(403).json({ error: "Creator plan required" });
 		}
 		return;
 	}
 
-	const isCreator = await getCreatorSubscription.execute(userId);
-	await redis.set(cacheKey, isCreator ? "1" : "0", "EX", CREATOR_CACHE_TTL);
+	const { creator } = await getActiveSubscription.execute(userId);
+	await redis.set(cacheKey, creator ? "1" : "0", "EX", CREATOR_CACHE_TTL);
 
-	if (!isCreator) {
-		res.status(402).json({ error: "Creator plan required" });
+	if (!creator) {
+		res.status(403).json({ error: "Creator plan required" });
 		return;
 	}
 

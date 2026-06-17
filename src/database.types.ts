@@ -916,6 +916,7 @@ export type Database = {
           category_id: string | null
           created_at: string | null
           id: string
+          importance: "essential" | "normal" | "optional"
           name: string
           position: number | null
           slug: string
@@ -925,6 +926,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           id?: string
+          importance?: "essential" | "normal" | "optional"
           name: string
           position?: number | null
           slug: string
@@ -934,6 +936,7 @@ export type Database = {
           category_id?: string | null
           created_at?: string | null
           id?: string
+          importance?: "essential" | "normal" | "optional"
           name?: string
           position?: number | null
           slug?: string

@@ -5,6 +5,7 @@ export type ModuleCardDTO = {
 	position: number;
 	lessonCount: number;
 	estimatedHours: number;
+	importance: "essential" | "normal" | "optional";
 };
 
 export type CategoryWithModulesDTO = {

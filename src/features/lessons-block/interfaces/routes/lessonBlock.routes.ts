@@ -7,7 +7,7 @@ import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware
 
 const route = Router();
 
-const { findOne, findByLessonId, findPreviewByLessonId, createLessonBlock, updateContent } =
+const { findOne, findByLessonId, findPreviewByLessonId, createLessonBlock, updateContent, updateBlockData } =
 	useLessonBlockControllerFactory();
 
 const teacherOnly = [requireAuthMiddleware, roleRequiredMiddleware(["teacher", "admin"])];
@@ -18,5 +18,6 @@ route.get("/lesson/:lessonId", findByLessonId);
 route.get("/:id", findOne);
 route.post("/", validateInput(CreateLessonBlockSchema), createLessonBlock);
 route.patch("/:id/content", ...teacherOnly, updateContent);
+route.patch("/:id/data", ...teacherOnly, updateBlockData);
 
 export default route;

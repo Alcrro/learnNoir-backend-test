@@ -10,6 +10,7 @@ const CATEGORY_META = [
 	{ key: "web", name: "Web Development", position: 5 },
 	{ key: "databases", name: "Databases", position: 6 },
 	{ key: "theory", name: "CS Theory", position: 7 },
+	{ key: "system-design", name: "System Design", position: 8 },
 ];
 
 const SUBJECTS_RAW = [
@@ -47,6 +48,19 @@ const SUBJECTS_RAW = [
 	// THEORY
 	{ id: "discrete-math", category: "theory", title: "Discrete Mathematics", position: 1 },
 	{ id: "complexity-theory", category: "theory", title: "Complexity Theory", position: 2 },
+	// SYSTEM DESIGN
+	{ id: "sd-scalability", category: "system-design", title: "Scalability & Performance", position: 1 },
+	{ id: "sd-reliability", category: "system-design", title: "Reliability & Availability", position: 2 },
+	{ id: "sd-cap-theorem", category: "system-design", title: "CAP Theorem & Consistency", position: 3 },
+	{ id: "sd-caching", category: "system-design", title: "Caching Strategies", position: 4 },
+	{ id: "sd-load-balancers", category: "system-design", title: "Load Balancers", position: 5 },
+	{ id: "sd-message-queues", category: "system-design", title: "Message Queues", position: 6 },
+	{ id: "sd-api-design", category: "system-design", title: "API Design", position: 7 },
+	{ id: "sd-database-scaling", category: "system-design", title: "Database Scaling", position: 8 },
+	{ id: "sd-microservices", category: "system-design", title: "Microservices Architecture", position: 9 },
+	{ id: "sd-url-shortener", category: "system-design", title: "Case Study: URL Shortener", position: 10 },
+	{ id: "sd-social-feed", category: "system-design", title: "Case Study: Social Media Feed", position: 11 },
+	{ id: "sd-video-streaming", category: "system-design", title: "Case Study: Video Streaming", position: 12 },
 ];
 
 // ── Seed ─────────────────────────────────────────────────────────────────────

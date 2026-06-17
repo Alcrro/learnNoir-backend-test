@@ -9,7 +9,7 @@ const subscriptionRepo = new SubscriptionRepoImpl(supabase);
 const orgSubRepo = new OrganizationSubscriptionRepoImpl(supabase);
 const getActiveSubscription = new GetActiveSubscriptionUseCase(subscriptionRepo, orgSubRepo);
 
-const SUB_CACHE_TTL = 60; // seconds — short enough to reflect cancellations promptly
+const SUB_CACHE_TTL = 60;
 
 export const requireProMiddleware = async (
 	req: Request,
@@ -23,11 +23,17 @@ export const requireProMiddleware = async (
 		return;
 	}
 
-	const cacheKey = `sub:pro:${userId}`;
+	// Admins and teachers always have full access
+	if (req.userRole === "admin" || req.userRole === "teacher") {
+		next();
+		return;
+	}
+
+	const cacheKey = `sub:is_pro:${userId}`;
 	const cached = await redis.get(cacheKey);
 
 	if (cached !== null) {
-		if (cached === "pro") {
+		if (cached === "1") {
 			next();
 		} else {
 			res.status(402).json({ error: "Pro subscription required" });
@@ -35,10 +41,10 @@ export const requireProMiddleware = async (
 		return;
 	}
 
-	const plan = await getActiveSubscription.execute(userId);
-	await redis.set(cacheKey, plan ?? "free", "EX", SUB_CACHE_TTL);
+	const { pro } = await getActiveSubscription.execute(userId);
+	await redis.set(cacheKey, pro ? "1" : "0", "EX", SUB_CACHE_TTL);
 
-	if (plan !== "pro") {
+	if (!pro) {
 		res.status(402).json({ error: "Pro subscription required" });
 		return;
 	}

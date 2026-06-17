@@ -7,4 +7,5 @@ export interface LessonBlockRepository {
 	update(id: string, block: LessonBlockEntity): Promise<void>;
 	delete(id: string): Promise<void>;
 	reorder(lessonId: string, blockId: string, newPosition: number): Promise<void>;
+	updateBlockData(id: string, data: Record<string, unknown>): Promise<void>;
 }

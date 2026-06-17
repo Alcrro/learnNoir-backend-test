@@ -3,6 +3,7 @@ import { createExerciseController } from "../../infrastructure/factories/Exercis
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware.ts";
 import { requireProMiddleware } from "../../../../utils/requireProMiddleware.ts";
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware.ts";
+import { codeExecutionRateLimit } from "../../../../utils/rateLimiters.ts";
 
 // Router for lesson-scoped routes: /api/lessons/:lessonId/exercises
 export const lessonExercisesRouter = Router({ mergeParams: true });
@@ -37,6 +38,7 @@ export const exercisesRouter = Router({ mergeParams: true });
 exercisesRouter.post(
 	"/:exerciseId/run",
 	requireAuthMiddleware,
+	codeExecutionRateLimit,
 	asyncHandlerMiddleware(controller.runCode),
 );
 
@@ -44,5 +46,6 @@ exercisesRouter.post(
 exercisesRouter.post(
 	"/:exerciseId/submit",
 	requireAuthMiddleware,
+	codeExecutionRateLimit,
 	asyncHandlerMiddleware(controller.submitExercise),
 );

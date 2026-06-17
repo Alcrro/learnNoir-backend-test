@@ -11,6 +11,7 @@ const makeBlockRepo = () => ({
 	update: vi.fn(),
 	delete: vi.fn(),
 	reorder: vi.fn(),
+	updateBlockData: vi.fn(),
 });
 
 const lessonId = "lesson-1";

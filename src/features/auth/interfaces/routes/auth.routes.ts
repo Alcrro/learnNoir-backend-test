@@ -23,5 +23,7 @@ route.post("/register", authLimiter, validateInput(RegisterSchema), asyncHandler
 route.get("/me", requireAuthMiddleware, asyncHandlerMiddleware(authRepoController.getCurrentUser));
 route.post("/refresh", asyncHandlerMiddleware(authRepoController.refresh));
 route.post("/logout", asyncHandlerMiddleware(authRepoController.logout));
+route.post("/forgot-password", asyncHandlerMiddleware(authRepoController.forgotPassword));
+route.post("/reset-password", asyncHandlerMiddleware(authRepoController.resetPassword));
 
 export default route;

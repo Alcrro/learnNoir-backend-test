@@ -15,6 +15,7 @@ const makeBlockRepo = () => ({
 	update: vi.fn(),
 	delete: vi.fn(),
 	reorder: vi.fn(),
+	updateBlockData: vi.fn(),
 });
 
 const makeLessonRepo = () => ({

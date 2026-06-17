@@ -20,6 +20,18 @@ router.post(
 	asyncHandlerMiddleware(controller.createCreatorCheckoutSessionHandler),
 );
 
+router.post(
+	"/upgrade-to-creator",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.upgradeToCreatorHandler),
+);
+
+router.post(
+	"/create-portal-session",
+	requireAuthMiddleware,
+	asyncHandlerMiddleware(controller.createPortalSessionHandler),
+);
+
 // Stripe sends raw body — must NOT be parsed by express.json()
 router.post(
 	"/webhook",

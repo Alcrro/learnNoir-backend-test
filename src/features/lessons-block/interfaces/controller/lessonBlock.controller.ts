@@ -6,6 +6,7 @@ import { GetLessonBlockUsecase } from "../../application/useCases/getLessonBlock
 import { asyncHandlerMiddleware } from "../../../../utils/asyncHandlerMiddleware";
 import type { GetBlocksByLessonIdUseCase } from "../../application/useCases/getBlocksByLessonIdUseCase";
 import type { UpdateContentBlockUseCase } from "../../application/useCases/updateContentBlockUseCase";
+import type { UpdateBlockDataUseCase } from "../../application/useCases/updateBlockDataUseCase";
 import type { GetBlocksPreviewUseCase } from "../../application/useCases/GetBlocksPreviewUseCase";
 
 export class LessonBlockController {
@@ -16,6 +17,7 @@ export class LessonBlockController {
 			getBlocksPreview: GetBlocksPreviewUseCase;
 			createLessonBlock: CreateLessonBlockUseCase;
 			updateContent: UpdateContentBlockUseCase;
+			updateBlockData: UpdateBlockDataUseCase;
 		},
 	) {}
 
@@ -65,6 +67,18 @@ export class LessonBlockController {
 				id,
 				content as Record<string, unknown>[],
 			);
+			return res.status(200).json({ data: null });
+		},
+	);
+
+	updateBlockData = asyncHandlerMiddleware(
+		async (req: Request, res: Response) => {
+			const id = readRequiredString(req.params.id, "Block id is required");
+			const { data } = req.body as { data?: unknown };
+			if (!isObject(data)) {
+				throw new AppError("data must be an object", 400);
+			}
+			await this.lessonBlockServices.updateBlockData.execute(id, data);
 			return res.status(200).json({ data: null });
 		},
 	);

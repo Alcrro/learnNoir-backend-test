@@ -2,6 +2,7 @@ import { Router } from "express";
 import { requireAuthMiddleware } from "../../../../utils/requireAuthMiddleware.ts";
 import { roleRequiredMiddleware } from "../../../../utils/roleRequiredMiddleware.ts";
 import { requireCreatorMiddleware } from "../../../../utils/requireCreatorMiddleware.ts";
+import { aiRateLimit } from "../../../../utils/rateLimiters.ts";
 import {
 	generateLessonContent,
 	generateLessonMetadata,
@@ -17,6 +18,7 @@ const teacherWithCreator = [
 	requireAuthMiddleware,
 	roleRequiredMiddleware(["teacher", "admin"]),
 	requireCreatorMiddleware,
+	aiRateLimit,
 ];
 
 // Generate a draft for a lesson field (title / description / content) from a topic
