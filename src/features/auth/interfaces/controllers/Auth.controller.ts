@@ -102,8 +102,14 @@ export class AuthController {
 	};
 
 	logout = async (_req: Request, res: Response) => {
-		res.clearCookie("accessToken");
-		res.clearCookie("refreshToken");
+		const { isProd } = env;
+		const cookieOpts = {
+			httpOnly: true,
+			secure: isProd,
+			sameSite: (isProd ? "none" : "strict") as "none" | "strict",
+		};
+		res.clearCookie("accessToken", cookieOpts);
+		res.clearCookie("refreshToken", cookieOpts);
 
 		return res.status(200).json({ data: null });
 	};
