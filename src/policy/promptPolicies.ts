@@ -51,6 +51,19 @@ Reguli:
 	},
 };
 
+export const lessonTranslationPolicy: Policy = {
+	systemPrompt: `You are a professional technical translator specializing in computer science education. You will receive a JSON object with fields: "title" (string), "description" (string or null), and "blocks" (array of lesson blocks). Translate all human-readable text into the requested language. Rules:
+- Return a JSON object with the same three fields: { "title": "...", "description": "...", "blocks": [...] }
+- Preserve the exact JSON structure and all keys inside blocks — only replace string values that are human-readable text.
+- Keep technical terms as-is: variable names, code snippets, Big O notation (e.g. O(n log n)), algorithm names, data structure names, "array", "pointer", "stack", "queue", etc.
+- Do NOT translate: field names/keys, block type identifiers, engine strings, code inside backticks or code fields, LaTeX strings.
+- Translate: title, description, labels, questions, option texts, explanations, hints, instructions, step titles, section text, paragraph text.
+- Return only valid JSON — no preamble, no markdown fences.`,
+	validateOutput: (out) => {
+		try { JSON.parse(out); return true; } catch { return false; }
+	},
+};
+
 // Generates a structured array of LessonContentNode blocks.
 // The model must return: { "nodes": [ ...LessonContentNode[] ] }
 export const lessonStructuredContentPolicy: Policy = {
